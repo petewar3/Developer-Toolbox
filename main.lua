@@ -42,7 +42,6 @@ makefolder = clonefunction(makefolder)
 isfolder = clonefunction(isfolder)
 writefile = clonefunction(writefile)
 isfile = clonefunction(isfile)
-loadfile = clonefunction(loadfile)
 loadstring = clonefunction(loadstring)
 httprequest = clonefunction((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request)
 queueteleport = clonefunction((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport))
@@ -104,9 +103,7 @@ local function SendInteractiveNotification(options)
     end)
 end
 
-local makefolderr = false
-
-for _, v in ipairs({makefolderr, isfolder, writefile, isfile, loadstring}) do
+for _, v in ipairs({makefolder, isfolder, writefile, isfile, loadstring}) do
     if not v or typeof(v) ~= "function" then
         return SendNotification("Incompatible Explot. Your exploit does not support the toolbox (missing " .. v .. " )")
     end
@@ -143,7 +140,6 @@ local optionalFunctions = {
     isfolder,
     writefile,
     isfile,
-    loadfile,
     loadstring,
     httprequest,
     queueteleport,
@@ -929,13 +925,17 @@ addonDropdown = Addons:CreateDropdown("Select Addon", addonList, 1, function(tex
 end)
 
 Addons:CreateButton("Load Selected Addon", function()
-    if not selectedAddon then return SendNotification("No addon selected.") end
+    if not selectedAddon then return 
+        SendNotification("No addon selected.")
+    end
 
     local path = addonsFolder .. "/" .. selectedAddon .. ".lua"
-    if not isfile(path) then return SendNotification("Addon not found.") end
+    if not isfile(path) then 
+        return SendNotification("Addon not found.") 
+    end
 
     local success, result = pcall(function()
-        loadfile(readfile(path))()
+        loadstring(readfile(path))()
     end)
 
     if success then
