@@ -32,17 +32,85 @@ else
 end
 
 --// Services & Setup
-httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
-queueteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
-setclip = setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set)
-fireproximityprompt = fireproximityprompt
-clonefunction = clonefunction
-hookmetamethod = hookmetamethod
+clonefunction = clonefunction or function(func)
+    return function(...)
+        return func(...)
+    end
+end
+
+makefolder = clonefunction(makefolder)
+isfolder = clonefunction(isfolder)
+writefile = clonefunction(writefile)
+isfile = clonefunction(isfile)
+loadfile = clonefunction(loadfile)
+loadstring = clonefunction(loadstring)
+httprequest = clonefunction((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request)
+queueteleport = clonefunction((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport))
+setclip = clonefunction(setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set))
+fireproximityprompt = clonefunction(fireproximityprompt)
+hookfunction = clonefunction(hookfunction)
+hookmetamethod = clonefunction(hookmetamethod)
 
 local player = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 local starterGui = game:GetService("StarterGui")
 local userInputService = game:GetService("UserInputService")
+
+--// Notification Sender
+local bell_ring = "rbxassetid://108052242103510"
+
+local function SendNotification(text, duration)
+    starterGui:SetCore("SendNotification", {
+        Title = "Toolbox",
+        Text = text or "Text Content not specified.",
+        Icon = bell_ring,
+        Duration = duration or 3.5
+    })
+end
+
+local function SendInteractiveNotification(options)
+    local bindable = Instance.new("BindableFunction")
+
+    local text = options.Text or "Are you sure?"
+    local duration = options.Duration or 3.5
+    local button1 = options.Button1 or "Yes"
+    local button2 = options.Button2 or "No"
+    local callback = options.Callback
+
+    bindable.OnInvoke = function(value)
+        if callback then
+            callback(value)
+        end
+        
+        if bindable then
+            bindable:Destroy()
+        end
+    end
+
+    starterGui:SetCore("SendNotification", {
+        Title = "Toolbox",
+        Text = text,
+        Icon = bell_ring,
+        Duration = duration,
+        Button1 = button1,
+        Button2 = button2,
+        Callback = bindable
+    })
+
+    task.delay(duration, function()
+        if bindable then
+            bindable:Destroy()
+        end
+    end)
+end
+
+local makefolderr = false
+
+for _, v in ipairs({makefolderr, isfolder, writefile, isfile, loadstring}) do
+    if not v or typeof(v) ~= "function" then
+        return SendNotification("Incompatible Explot. Your exploit does not support the toolbox (missing " .. v .. " )")
+    end
+end
 
 --// UI Cleanup
 local wizardLibary = coreGui:FindFirstChild("WizardLibrary")
@@ -70,45 +138,13 @@ if not isfolder(toolboxFolder) then
     makefolder(toolboxFolder)
 end
 
---// Notification Sender
-local bell_ring = "rbxassetid://108052242103510"
-
-local function SendNotification(text, duration)
-    starterGui:SetCore("SendNotification", {
-        Title = "Toolbox",
-        Text = text or "Text Content not specified.",
-        Icon = bell_ring,
-        Duration = duration or 3.5
-    })
-end
-
-local function SendInteractiveNotification(options)
-    local bindable = Instance.new("BindableFunction")
-
-    local text = options.Text or "Are you sure?"
-    local duration = options.Duration or 3.5
-    local button1 = options.Button1 or "Yes"
-    local button2 = options.Button2 or "No"
-    local callback = options.Callback
-
-    bindable.OnInvoke = function(value)
-        if callback then
-            callback(value)
-        end
-    end
-
-    starterGui:SetCore("SendNotification", {
-        Title = "Toolbox",
-        Text = text,
-        Icon = bell_ring,
-        Duration = duration,
-        Button1 = button1,
-        Button2 = button2,
-        Callback = bindable
-    })
-end
-
-local executorFunctions = {
+local optionalFunctions = {
+    makefolder,
+    isfolder,
+    writefile,
+    isfile,
+    loadfile,
+    loadstring,
     httprequest,
     queueteleport,
     setclip,
@@ -118,13 +154,13 @@ local executorFunctions = {
 }
 
 local compatibilityCount = 0
-for _, v in ipairs(executorFunctions) do
+for _, v in ipairs(optionalFunctions) do
     if v then
         compatibilityCount = compatibilityCount + 1
     end
 end
 
-local compatibilityPercentage = (compatibilityCount / #executorFunctions) * 100
+local compatibilityPercentage = (compatibilityCount / #optionalFunctions) * 100
 
 if compatibilityPercentage == 100 then
     SendNotification(string.format("Your executor is %.0f%% compatible. All toolbox features should work as expected.", compatibilityPercentage), 4)
@@ -178,7 +214,7 @@ local TeleportCheck = false
 
 local executeOnTeleport = true -- set to false if you dont want execution on server hop / rejoin
 
-if executeOnTeleport and not _G.ToolboxQueueTeleport then
+if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not _G.ToolboxQueueTeleport then
     _G.ToolboxQueueTeleport = true
         game.Players.LocalPlayer.OnTeleport:Connect(function(State)
             if not TeleportCheck and queueteleport then
@@ -188,7 +224,7 @@ if executeOnTeleport and not _G.ToolboxQueueTeleport then
                         game.Loaded:Wait()
                         task.wait(1)
                 end
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/PetewareScripts/Developers-Toolbox-Peteware/refs/heads/main/main.lua"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/main.lua"))()
                 ]])
             end
         end)
@@ -632,11 +668,11 @@ Tools:CreateButton("Dex Explorer", function()
 end)
 
 Tools:CreateButton("Hydroxide", function()
-    local owner = "Hosvile"
+    local owner = "petewar3"
     local branch = "revision"
     
     local function webImport(file)
-        return loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/MC-Hydroxide/%s/%s.lua"):format(owner, branch, file)), file .. '.lua')()
+        return loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide-Backup/%s/%s.lua"):format(owner, branch, file)), file .. '.lua')()
     end
     
     webImport("init")
@@ -644,7 +680,7 @@ Tools:CreateButton("Hydroxide", function()
 end)
 
 Tools:CreateButton("Ketamine", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/InfernusScripts/Ketamine/refs/heads/main/Ketamine.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Petewar3/Ketamine-Backup/refs/heads/main/Ketamine.lua"))()
 end)
 
 if device == "PC" then
@@ -899,7 +935,7 @@ Addons:CreateButton("Load Selected Addon", function()
     if not isfile(path) then return SendNotification("Addon not found.") end
 
     local success, result = pcall(function()
-        loadstring(readfile(path))()
+        loadfile(readfile(path))()
     end)
 
     if success then
