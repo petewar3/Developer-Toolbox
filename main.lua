@@ -50,6 +50,8 @@ setclip = clonefunction(setclipboard or (syn and syn.setclipboard) or (Clipboard
 fireproximityprompt = clonefunction(fireproximityprompt)
 hookfunction = clonefunction(hookfunction)
 hookmetamethod = clonefunction(hookmetamethod)
+identifyexecutor = clonefunction(identifyexecutor)
+getthreadcontext = clonefunction(getthreadcontext)
 
 local player = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
@@ -157,7 +159,9 @@ local optionalFunctions = {
     setclip,
     fireproximityprompt,
     hookfunction,
-    hookmetamethod
+    hookmetamethod,
+    identifyexecutor,
+    getthreadcontext
 }
 
 local compatibilityCount = 0
@@ -545,9 +549,9 @@ local executorLevel = getthreadcontext and getthreadcontext() or "Unknown"
 
 local function FetchExecutorInfo()
     OpenDevConsole()
-    print("Device: " .. platform)    
-    print("Executor: " .. executorName)
-    print("Executor Level: " .. tostring(executorLevel))
+    print("Device:", platform)    
+    print("Executor:", executorName)
+    print("Executor Level:", executorLevel)
     
     local function DumpTable(tbl, indent, path, visited)
         indent = indent or ""
@@ -555,23 +559,19 @@ local function FetchExecutorInfo()
         visited = visited or {}
 
         if visited[tbl] then
-            print(indent .. path .. " : [🔁 Circular Reference to '" .. visited[tbl] .. "']")
+            print(indent .. path .. " : [Circular Reference to " .. tostring(tbl) .. "]")
             return
         end
-
-        visited[tbl] = path == "" and "(root)" or path
+        visited[tbl] = true
 
         for k, v in pairs(tbl) do
             local currentPath = path ~= "" and (path .. "." .. tostring(k)) or tostring(k)
-            local vType = typeof(v)
+            local valueType = typeof(v)
 
-            if vType == "table" then
-                print(indent .. currentPath .. " : table")
+            print(indent .. currentPath .. " : " .. valueType)
+
+            if valueType == "table" then
                 DumpTable(v, indent .. "  ", currentPath, visited)
-            elseif vType == "function" then
-                print(indent .. currentPath .. " : function (" .. tostring(v) .. ")")
-            else
-                print(indent .. currentPath .. " : " .. vType .. " = " .. tostring(v))
             end
         end
     end
