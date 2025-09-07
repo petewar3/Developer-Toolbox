@@ -210,8 +210,8 @@ local teleportCheck = false
 
 local executeOnTeleport = true -- set to false if you dont want execution on server hop / rejoin
 
-if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not getgenv().ToolboxQueuedTeleport then
-    getgenv().ToolboxQueuedTeleport = true
+if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not getgenv().ToolboxQueueOnTeleport then
+    getgenv().ToolboxQueueOnTeleport = true
     game.Players.LocalPlayer.OnTeleport:Connect(function(State)
         if not teleportCheck and queueteleport then
             teleportCheck = true
