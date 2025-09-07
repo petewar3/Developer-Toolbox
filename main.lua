@@ -42,6 +42,7 @@ makefolder = clonefunction(makefolder)
 isfolder = clonefunction(isfolder)
 writefile = clonefunction(writefile)
 isfile = clonefunction(isfile)
+readfile = clonefunction(readfile)
 loadstring = clonefunction(loadstring)
 httprequest = clonefunction((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request)
 queueteleport = clonefunction((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport))
@@ -103,7 +104,16 @@ local function SendInteractiveNotification(options)
     end)
 end
 
-for _, v in ipairs({makefolder, isfolder, writefile, isfile, loadstring}) do
+local requiredFunctions = {
+    makefolder,
+    isfolder,
+    writefile,
+    isfile,
+    readfile,
+    loadstring
+}
+
+for _, v in ipairs(requiredFunctions) do
     if not v or typeof(v) ~= "function" then
         return SendNotification("Incompatible Explot. Your exploit does not support the toolbox (missing " .. v .. " )")
     end
@@ -140,6 +150,7 @@ local optionalFunctions = {
     isfolder,
     writefile,
     isfile,
+    readfile,
     loadstring,
     httprequest,
     queueteleport,
@@ -203,6 +214,12 @@ local function ServerHop()
     else
        SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing httprequest)")
     end
+end
+
+local function OpenDevConsole()
+    pcall(function() 
+        starterGui:SetCore("DevConsoleVisible", true) 
+    end)
 end
 
 --// Execution on Teleport
@@ -527,10 +544,27 @@ local executorName = identifyexecutor and identifyexecutor() or "Unknown"
 local executorLevel = getthreadcontext and getthreadcontext() or "Unknown"
 
 local function FetchExecutorInfo()
-    pcall(function() starterGui:SetCore("DevConsoleVisible", true) end)
+    OpenDevConsole()
     print("Device: " .. platform)    
     print("Executor: " .. executorName)
     print("Executor Level: " .. tostring(executorLevel))
+    
+    local function DumpTable(table, indent, path)
+        indent = indent or ""
+        path = path or ""
+
+        for k, v in pairs(table) do
+            local currentPath = path ~= "" and (path .. "." .. tostring(k)) or tostring(k)
+            print(indent .. currentPath .. " : " .. typeof(v))
+
+            if typeof(v) == "table" then
+                DumpTable(v, indent .. "  ", currentPath)
+            end
+        end
+    end
+    
+    print("Executor Variables:\n")
+    DumpTable(getgenv())
 end
 
 local function BuildStopwatch()
@@ -685,22 +719,22 @@ if device == "PC" then
 local Debugging1 = PetewareToolbox:NewSection("Variable Debugging1")
 
 Debugging1:CreateButton("Print Global Variables V1", function()
-    starterGui:SetCore("DevConsoleVisible", true)
+    OpenDevConsole()
     Debug_G()
 end)
 
 Debugging1:CreateButton("Print Global Variables V2", function()
-    starterGui:SetCore("DevConsoleVisible", true)
+    OpenDevConsole()
     Debuggetgenv()
 end)
 
 Debugging1:CreateButton("Print Recent Global Variables V1", function()
-    starterGui:SetCore("DevConsoleVisible", true)
+    OpenDevConsole()
     Debug_GNew()
 end)
 
 Debugging1:CreateButton("Print Recent Global Variables V2", function()
-    starterGui:SetCore("DevConsoleVisible", true)
+    OpenDevConsole()
     DebuggetgenvNew()
 end)
 
@@ -710,13 +744,13 @@ Debugging1:CreateTextbox("Copy Global Variable V1", function(text)
         if setclip and typeof(setclip) == "function" then
             setclip("_G." .. text .. " = " .. variableValue)
             print("Copied: _G." .. text .. " = " .. variableValue)
-            starterGui:SetCore("DevConsoleVisible", true)
+            OpenDevConsole()
         else
             return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing setclip)")
         end
     else
         print(text .. " Variable not found in _G.")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 
@@ -726,13 +760,13 @@ Debugging1:CreateTextbox("Copy Global Variable V2", function(text)
         if setclip and typeof(setclip) == "function" then
             setclip("getgenv()." .. text .. " = " .. variableValue)
             print("Copied: getgenv()." .. text .. " = " .. variableValue)
-            starterGui:SetCore("DevConsoleVisible", true)
+            OpenDevConsole()
         else
             return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing setclip)")
         end
     else
         print(text .. " Variable not found in getgenv().")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 
@@ -746,18 +780,18 @@ local varName, value = input:match("^(%S+)%s*=%s*(.+)$")
             if success then
                 _G[varName] = result
                 print("Created: _G." .. varName .. " = " .. tostring(result))
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             else
                 print("Invalid value format.")
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             end
         else
             print(varName .. " found in _G. Creating not allowed.")
-            starterGui:SetCore("DevConsoleVisible", true)
+            OpenDevConsole()
         end
     else
         print("Invalid input format. Please use 'VariableName = value'.")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 
@@ -769,18 +803,18 @@ local varName, value = input:match("^(%S+)%s*=%s*(.+)$")
             if success then
                 getgenv()[varName] = result
                 print("Created: getgenv()." .. varName .. " = " .. tostring(result))
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             else
                 print("Invalid value format.")
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             end
         else
             print(varName .. " found in getgenv(). Creating not allowed.")
-            starterGui:SetCore("DevConsoleVisible", true)
+            OpenDevConsole()
         end
     else
         print("Invalid input format. Please use 'VariableName = value'.")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 
@@ -792,18 +826,18 @@ Debugging2:CreateTextbox("Edit Global Variable V1", function(input)
             if success then
                 _G[varName] = result
                 print("Edited: _G." .. varName .. " = " .. tostring(result))
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             else
                 print("Invalid value format.")
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             end
         else
             print(varName .. " not found in _G. Editing not allowed.")
-            starterGui:SetCore("DevConsoleVisible", true)
+            OpenDevConsole()
         end
     else
         print("Invalid input format. Please use 'VariableName = value'.")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 
@@ -815,18 +849,18 @@ Debugging2:CreateTextbox("Edit Global Variable V2", function(input)
             if success then
                 getgenv()[varName] = result
                 print("Edited: getgenv()." .. varName .. " = " .. tostring(result))
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             else
                 print("Invalid value format.")
-                starterGui:SetCore("DevConsoleVisible", true)
+                OpenDevConsole()
             end
         else
             print(varName .. " not found in getgenv(). Editing not allowed.")
-            starterGui:SetCore("DevConsoleVisible", true)
+            OpenDevConsole()
         end
     else
         print("Invalid input format. Please use 'VariableName = value'.")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 
@@ -834,10 +868,10 @@ Debugging2:CreateTextbox("Delete Global Variable V1", function(text)
     if _G[text] ~= nil then
         _G[text] = nil
         print("Deleted: _G." .. text)
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     else
         print(text .. " not found in _G.")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 
@@ -845,10 +879,10 @@ Debugging2:CreateTextbox("Delete Global Variable V2", function(text)
     if getgenv()[text] ~= nil then
         getgenv()[text] = nil
         print("Deleted: getgenv()." .. text)
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     else
         print(text .. " not found in getgenv().")
-        starterGui:SetCore("DevConsoleVisible", true)
+        OpenDevConsole()
     end
 end)
 end
@@ -856,12 +890,12 @@ end
 local InstanceScanner = PetewareToolbox:NewSection("Instance Scanner")
 
 InstanceScanner:CreateButton("Fetch All Available Classes", function()
-    starterGui:SetCore("DevConsoleVisible", true)
+    OpenDevConsole()
     FetchAvailableClasses()
 end)
 
 InstanceScanner:CreateTextbox("Scan by Class", function(className)
-    starterGui:SetCore("DevConsoleVisible", true)
+    OpenDevConsole()
     local startTime = os.clock()
     local foundInstanceClass = false
 
