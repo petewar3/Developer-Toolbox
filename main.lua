@@ -647,7 +647,7 @@ local function BuildStopwatch()
 end
 
 --// Main UI
-local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
+local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Wizard-Backup.lua"))()
 
 local PetewareToolbox = Library:NewWindow("Dev Toolbox | Peteware")
 
@@ -1106,6 +1106,8 @@ Infinite Yield: Server Hop, Dex Explorer, Remote Spy, Client-Anti-Kick
 Infinite Yield Discord Server: https://discord.gg/78ZuWSq
 Hosvile: Hydroxide 
 Hosvile Github: https://github.com/hosvile/
+Cherry: Ketamine
+Cherry Discord Server: https://discord.gg/7xYqrnwSWr
 RIP#6666: FPS Booster
 RIP#6666 Discord Server: https://discord.gg/rips
 ]]
