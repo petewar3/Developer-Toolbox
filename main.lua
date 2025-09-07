@@ -201,29 +201,31 @@ local function ServerHop()
             return SendNotification("Server Hop Failed. Couldnt find a available server")
         end
     else
-       SendNotification("Incompatible Exploit. Your exploit does not support this function (missing request)")
+       SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing httprequest)")
     end
 end
 
---// Re-Execution on Teleport
-local TeleportCheck = false
+--// Execution on Teleport
+local teleportCheck = false
 
 local executeOnTeleport = true -- set to false if you dont want execution on server hop / rejoin
 
-if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not _G.ToolboxQueueTeleport then
-    _G.ToolboxQueueTeleport = true
-        game.Players.LocalPlayer.OnTeleport:Connect(function(State)
-            if not TeleportCheck and queueteleport then
-                TeleportCheck = true
-                queueteleport([[
-                if not game:IsLoaded() then
-                        game.Loaded:Wait()
-                        task.wait(1)
-                end
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/main.lua"))()
-                ]])
+if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not getgenv().ToolboxQueuedTeleport then
+    getgenv().ToolboxQueuedTeleport = true
+    game.Players.LocalPlayer.OnTeleport:Connect(function(State)
+        if not teleportCheck and queueteleport then
+            teleportCheck = true
+            queueteleport([[
+            if not game:IsLoaded() then
+                    game.Loaded:Wait()
+                    task.wait(1)
             end
-        end)
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/main.lua"))()
+            ]])
+        end
+    end)
+elseif not queueteleport or typeof(queueteleport) ~= "function" then
+    SendNotification("Incompatible Exploit. Your exploit does not support execute on teleport (missing queueteleport)")
 end
 
 --// Timer
