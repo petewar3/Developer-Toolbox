@@ -549,16 +549,29 @@ local function FetchExecutorInfo()
     print("Executor: " .. executorName)
     print("Executor Level: " .. tostring(executorLevel))
     
-    local function DumpTable(table, indent, path)
+    local function DumpTable(tbl, indent, path, visited)
         indent = indent or ""
         path = path or ""
+        visited = visited or {}
 
-        for k, v in pairs(table) do
+        if visited[tbl] then
+            print(indent .. path .. " : [🔁 Circular Reference to '" .. visited[tbl] .. "']")
+            return
+        end
+
+        visited[tbl] = path == "" and "(root)" or path
+
+        for k, v in pairs(tbl) do
             local currentPath = path ~= "" and (path .. "." .. tostring(k)) or tostring(k)
-            print(indent .. currentPath .. " : " .. typeof(v))
+            local vType = typeof(v)
 
-            if typeof(v) == "table" then
-                DumpTable(v, indent .. "  ", currentPath)
+            if vType == "table" then
+                print(indent .. currentPath .. " : table")
+                DumpTable(v, indent .. "  ", currentPath, visited)
+            elseif vType == "function" then
+                print(indent .. currentPath .. " : function (" .. tostring(v) .. ")")
+            else
+                print(indent .. currentPath .. " : " .. vType .. " = " .. tostring(v))
             end
         end
     end
@@ -961,8 +974,8 @@ addonDropdown = Addons:CreateDropdown("Select Addon", addonList, 1, function(tex
 end)
 
 Addons:CreateButton("Load Selected Addon", function()
-    if not selectedAddon then return 
-        SendNotification("No addon selected.")
+    if not selectedAddon then
+        return SendNotification("No addon selected.")
     end
 
     local path = addonsFolder .. "/" .. selectedAddon .. ".lua"
