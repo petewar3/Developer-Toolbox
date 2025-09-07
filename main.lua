@@ -190,8 +190,9 @@ end
 --// Server Rejoin
 local function RejoinServer()
     SendNotification("Attempting to Rejoin Server")
-    task.wait(1)
-    game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, game.jobId)
+    task.delay(1, function()
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, game.jobId)
+    end)
 end
 
 --// Server Hop
@@ -226,7 +227,7 @@ local function OpenDevConsole()
     end)
 end
 
---// Execution on Teleport
+--// Execute on Teleport
 local teleportCheck = false
 
 local executeOnTeleport = true -- set to false if you dont want execution on server hop / rejoin
@@ -238,8 +239,8 @@ if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport a
             teleportCheck = true
             queueteleport([[
             if not game:IsLoaded() then
-                    game.Loaded:Wait()
-                    task.wait(1)
+                game.Loaded:Wait()
+                task.wait(1)
             end
             loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/main.lua"))()
             ]])
@@ -960,13 +961,23 @@ end)
 
 Addons:CreateButton("Save Addon", function()
     if not addonName or addonName == "" or not addonScript or addonScript == "" then
-        return SendNotification("Missing name or script input.")
+        return SendNotification("Missing name or script input. Make sure to press enter after inputting details.")
     end
 
     writefile(addonsFolder .. "/" .. addonName, addonScript)
     SendNotification("Saved Addon: " .. addonName)
-    task.wait(3)
-    SendNotification("Please Re-Execute the Developers Toolbox to apply addon changes.")
+    task.delay(2, function()
+        SendInteractiveNotification({
+            Text = "Would you like to reload the Developers Toolbox to apply your addon changes?",
+            Button1 = "Yes",
+            Button2 = "No",
+            Callback = function(value)
+                if value == "Yes" then
+                    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/main.lua"))()
+                end
+            end
+        })
+    end)
 end)
 
 addonDropdown = Addons:CreateDropdown("Select Addon", addonList, 1, function(text)
@@ -1014,8 +1025,18 @@ Addons:CreateButton("Delete Selected Addon", function()
                 delfile(path)
                 selectedAddon = nil
                 SendNotification("Deleted Addon: " .. path:match("[^/\\]+$"))
-                task.wait(3)
-                SendNotification("Please Re-Execute the Developers Toolbox to apply addon changes.")
+                task.delay(2, function()
+                    SendInteractiveNotification({
+                        Text = "Would you like to reload the Developers Toolbox to apply your addon changes?",
+                        Button1 = "Yes",
+                        Button2 = "No",
+                        Callback = function(value)
+                            if value == "Yes" then
+                                loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/main.lua"))()
+                            end
+                        end
+                    })
+                end)
             elseif value == "No" then
                 SendNotification("Addon deletion cancelled.")
             end
