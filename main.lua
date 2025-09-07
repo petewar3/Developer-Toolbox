@@ -678,7 +678,7 @@ Tools:CreateButton("Hydroxide", function()
 end)
 
 Tools:CreateButton("Ketamine", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Petewar3/Ketamine-Backup/refs/heads/main/Ketamine.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Ketamine-Backup.lua"))()
 end)
 
 if device == "PC" then
