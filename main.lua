@@ -31,6 +31,33 @@ else
     getgenv().ToolboxExecuting = true; game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Toolbox", Text = "Developers Toolbox Loading! Please wait...", Icon = "rbxassetid://108052242103510", Duration = 3.5})
 end
 
+task.delay(5, function()
+    if getgenv().ToolboxExecuting then
+        getgenv().ToolboxExecuting = nil
+        local errorSound = Instance.new("Sound")
+        errorSound.Name = "PetewareErrorNotification"
+        errorSound.SoundId = "rbxassetid://9066167010"
+        errorSound.Volume = 1
+        errorSound.Archivable = false
+        errorSound.Parent = game:GetService("SoundService")
+        
+        pcall(function() 
+            errorSound:Play()
+            errorSound.Ended:Once(function()
+                errorSound:Destroy()
+            end)
+        end)
+        
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Toolbox",
+            Text = "An error has occured while loading the toolbox, Please try and rexecute. If this problem persists please report this to 584h with console logs.",
+            Icon = "rbxassetid://108052242103510",
+            Duration = 3.5
+        })
+    return
+    end
+end)
+
 --// Services & Setup
 clonefunction = clonefunction or function(func)
     return function(...)
@@ -78,7 +105,13 @@ for _, v in ipairs(requiredFunctions) do
         errorSound.Volume = 1
         errorSound.Archivable = false
         errorSound.Parent = soundService
-        errorSound.Loaded:Wait()
+        
+        pcall(function() 
+            errorSound:Play()
+            errorSound.Ended:Once(function()
+                errorSound:Destroy()
+            end)
+        end)
 
         starterGui:SetCore("SendNotification", {
             Title = "Toolbox",
@@ -86,13 +119,6 @@ for _, v in ipairs(requiredFunctions) do
             Icon = bell_ring,
             Duration = duration or 3.5
         })
-
-        pcall(function() 
-            errorSound:Play()
-            errorSound.Ended:Once(function()
-                errorSound:Destroy()
-            end)
-        end)
 
         return
     end
@@ -161,10 +187,14 @@ if not bell_ring_png then
     bell_ring_png = "rbxassetid://108052242103510"
 end
 
-local function SendNotification(text, duration)
+local function PlayNotificationSound()
     if notificationSound then
         notificationSound:Play()
     end
+end
+
+local function SendNotification(text, duration)
+    PlayNotificationSound()
     
     starterGui:SetCore("SendNotification", {
         Title = "Toolbox",
@@ -175,9 +205,7 @@ local function SendNotification(text, duration)
 end
 
 local function SendInteractiveNotification(options)
-    if notificationSound then
-        notificationSound:Play()
-    end
+    PlayNotificationSound()
     
     local bindable = Instance.new("BindableFunction")
 
@@ -220,11 +248,7 @@ if wizardLibary then
     wizardLibary:Destroy()
 end
 
---// Variables Cleanup
-if _G.ToolboxVariableTest ~= nil or getgenv().VariableTest ~= nil then
-    _G.ToolboxVariableTest = nil
-    getgenv().ToolboxVariableTest = nil
-end
+task.wait(1)
 
 local optionalFunctions = {
     getcustomasset,
@@ -1159,6 +1183,7 @@ Other:CreateToggle("Client Anti-Kick", function(value)
 end)
 
 Other:CreateButton("FPS Booster", function()
+    PlayNotificationSound()
     _G.Settings = {
         Players = {
             ["Ignore Me"] = true, -- Ignore your Character
