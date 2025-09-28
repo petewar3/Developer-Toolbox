@@ -124,8 +124,8 @@ if not isfolder(audiosFolder) then
     makefolder(audiosFolder)
 end
 
-if not isfolder(assetsFolder) then
-    makefolder(assetsFolder)
+if not isfolder(imagesFolder) then
+    makefolder(imagesFolder)
 end
 
 if not isfile(bell_ring_png) then
