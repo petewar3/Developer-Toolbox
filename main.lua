@@ -38,6 +38,7 @@ clonefunction = clonefunction or function(func)
     end
 end
 
+getcustomasset = clonefunction(getcustomasset or getsynasset)
 makefolder = clonefunction(makefolder)
 isfolder = clonefunction(isfolder)
 writefile = clonefunction(writefile)
@@ -57,20 +58,124 @@ local player = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 local starterGui = game:GetService("StarterGui")
 local userInputService = game:GetService("UserInputService")
+local soundService = game:GetService("SoundService")
+
+--// Executor Compatibility Check
+local requiredFunctions = {
+    makefolder,
+    isfolder,
+    writefile,
+    isfile,
+    readfile,
+    loadstring
+}
+
+for _, v in ipairs(requiredFunctions) do
+    if not v or typeof(v) ~= "function" then
+        local errorSound = Instance.new("Sound")
+        errorSound.Name = "PetewareErrorNotification"
+        errorSound.SoundId = "rbxassetid://9066167010"
+        errorSound.Volume = 1
+        errorSound.Archivable = false
+        errorSound.Parent = soundService
+        errorSound.Loaded:Wait()
+
+        starterGui:SetCore("SendNotification", {
+            Title = "Toolbox",
+            Text = "Incompatible Exploit. Your exploit does not support the toolbox (missing " .. tostring(v) .. ")",
+            Icon = bell_ring,
+            Duration = duration or 3.5
+        })
+
+        pcall(function() 
+            errorSound:Play()
+            errorSound.Ended:Once(function()
+                errorSound:Destroy()
+            end)
+        end)
+
+        return
+    end
+end
+
+--// Data Handler
+local mainFolder = "Peteware"
+local toolboxFolder = mainFolder .. "/Toolbox"
+local assetsFolder = toolboxFolder .. "/Assets"
+local audiosFolder = assetsFolder .. "/Audios"
+local imagesFolder = assetsFolder .. "/Images"
+
+local bell_ring_png = imagesFolder .. "/bell-ring.png"
+local bell_ring_mp3 = audiosFolder .. "/bell-ring.mp3"
+
+if not isfolder(mainFolder) then
+    makefolder(mainFolder)
+end
+
+if not isfolder(toolboxFolder) then
+    makefolder(toolboxFolder)
+end
+
+if not isfolder(assetsFolder) then
+    makefolder(assetsFolder)
+end
+
+if not isfolder(audiosFolder) then
+    makefolder(audiosFolder)
+end
+
+if not isfolder(assetsFolder) then
+    makefolder(assetsFolder)
+end
+
+if not isfile(bell_ring_png) then
+    writefile(bell_ring_png, game:HttpGet("https://github.com/petewar3/Developer-Toolbox/raw/refs/heads/main/Assets/Images/bell-ring.png"))
+end
+
+if not isfile(bell_ring_mp3) then
+    writefile(bell_ring_mp3, game:HttpGet("https://github.com/petewar3/Developer-Toolbox/raw/refs/heads/main/Assets/Audios/bell-ring.mp3"))
+end
 
 --// Notification Sender
-local bell_ring = "rbxassetid://108052242103510"
+local notificationSound
+if getcustomasset and bell_ring_mp3 then
+    local oldNotificationSound = soundService:FindFirstChild("PetewareNotification")
+    if oldNotificationSound then
+        oldNotificationSound:Destroy()
+    end
+    
+    notificationSound = Instance.new("Sound", soundService)
+    notificationSound.Name = "PetewareNotification"
+    notificationSound.SoundId = getcustomasset(bell_ring_mp3)
+    notificationSound.Volume = 1
+    notificationSound.Archivable = false
+    
+    notificationSound.Loaded:Wait()
+end
+
+bell_ring_png = getcustomasset(bell_ring_png)
+if not bell_ring_png then
+    bell_ring_png = "rbxassetid://108052242103510"
+end
 
 local function SendNotification(text, duration)
+    if notificationSound then
+        notificationSound:Play()
+    end
+    
     starterGui:SetCore("SendNotification", {
         Title = "Toolbox",
         Text = text or "Text Content not specified.",
-        Icon = bell_ring,
+        Icon = bell_ring_png,
         Duration = duration or 3.5
     })
 end
 
 local function SendInteractiveNotification(options)
+    if notificationSound then
+        notificationSound:Play()
+    end
+    
     local bindable = Instance.new("BindableFunction")
 
     local text = options.Text or "Are you sure?"
@@ -92,7 +197,7 @@ local function SendInteractiveNotification(options)
     starterGui:SetCore("SendNotification", {
         Title = "Toolbox",
         Text = text,
-        Icon = bell_ring,
+        Icon = bell_ring_png,
         Duration = duration,
         Button1 = button1,
         Button2 = button2,
@@ -106,28 +211,11 @@ local function SendInteractiveNotification(options)
     end)
 end
 
-local requiredFunctions = {
-    makefolder,
-    isfolder,
-    writefile,
-    isfile,
-    readfile,
-    loadstring
-}
-
-for _, v in ipairs(requiredFunctions) do
-    if not v or typeof(v) ~= "function" then
-        return SendNotification("Incompatible Explot. Your exploit does not support the toolbox (missing " .. v .. " )")
-    end
-end
-
 --// UI Cleanup
 local wizardLibary = coreGui:FindFirstChild("WizardLibrary")
 if wizardLibary then
     wizardLibary:Destroy()
 end
-
-task.wait(1)
 
 --// Variables Cleanup
 if _G.ToolboxVariableTest ~= nil or getgenv().VariableTest ~= nil then
@@ -135,19 +223,8 @@ if _G.ToolboxVariableTest ~= nil or getgenv().VariableTest ~= nil then
     getgenv().ToolboxVariableTest = nil
 end
 
---// Data Handler
-local mainFolder = "Peteware"
-local toolboxFolder = mainFolder .. "/Toolbox"
-
-if not isfolder(mainFolder) then
-    makefolder(mainFolder)
-end
-
-if not isfolder(toolboxFolder) then
-    makefolder(toolboxFolder)
-end
-
 local optionalFunctions = {
+    getcustomasset,
     makefolder,
     isfolder,
     writefile,
