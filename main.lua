@@ -153,7 +153,10 @@ if getcustomasset and bell_ring_mp3 then
     notificationSound.Loaded:Wait()
 end
 
-bell_ring_png = getcustomasset(bell_ring_png)
+if getcustomasset and bell_ring_png then
+    bell_ring_png = getcustomasset(bell_ring_png)
+end
+
 if not bell_ring_png then
     bell_ring_png = "rbxassetid://108052242103510"
 end
