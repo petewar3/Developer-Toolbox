@@ -26,37 +26,55 @@ end
 
 --// Executing Check
 if getgenv().ToolboxExecuting then
-    return game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Toolbox", Text = "Already Loading. Please Wait!", Icon = "rbxassetid://108052242103510", Duration = 3.5})
+    return game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Toolbox",
+        Text = "Already Loading. Please Wait!",
+        Icon = "rbxassetid://108052242103510",
+        Duration = 3.5
+    })
 else
-    getgenv().ToolboxExecuting = true; game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Toolbox", Text = "Developers Toolbox Loading! Please wait...", Icon = "rbxassetid://108052242103510", Duration = 3.5})
+    getgenv().ToolboxExecuting = true
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Toolbox",
+        Text = "Developers Toolbox Loading! Please wait...",
+        Icon = "rbxassetid://108052242103510",
+        Duration = 3.5
+    })
 end
 
-task.delay(5, function()
-    if getgenv().ToolboxExecuting ~= nil then
-        getgenv().ToolboxExecuting = nil
-        local errorSound = Instance.new("Sound")
-        errorSound.Name = "PetewareErrorNotification"
-        errorSound.SoundId = "rbxassetid://9066167010"
-        errorSound.Volume = 1
-        errorSound.Archivable = false
-        errorSound.Parent = game:GetService("SoundService")
+if getgenv().ToolboxErrorScheduled == nil then
+    getgenv().ToolboxErrorScheduled = true
+    
+    task.delay(5, function()
+        if getgenv().ToolboxExecuting ~= nil then
+            getgenv().ToolboxExecuting = nil
+            getgenv().ToolboxErrorScheduled = nil
+            
+            local errorSound = Instance.new("Sound")
+            errorSound.Name = "PetewareErrorNotification"
+            errorSound.SoundId = "rbxassetid://9066167010"
+            errorSound.Volume = 1
+            errorSound.Archivable = false
+            errorSound.Parent = game:GetService("SoundService")
         
-        pcall(function() 
-            errorSound:Play()
-            errorSound.Ended:Once(function()
-                errorSound:Destroy()
+            pcall(function() 
+                errorSound:Play()
+                errorSound.Ended:Once(function()
+                    errorSound:Destroy()
+                end)
             end)
-        end)
         
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Toolbox",
-            Text = "An error has occured while loading the toolbox, Please try and rexecute. If this problem persists please report this to 584h with console logs.",
-            Icon = "rbxassetid://108052242103510",
-            Duration = 3.5
-        })
-    return
-    end
-end)
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Toolbox",
+                Text = "An error has occured while loading the toolbox, Please try and rexecute. If this problem persists please report this to 584h with console logs.",
+                Icon = "rbxassetid://108052242103510",
+                Duration = 4.5
+            })
+        else
+            getgenv().ToolboxErrorScheduled = nil
+        end
+    end)
+end
 
 --// Services & Setup
 clonefunction = clonefunction or function(func)
@@ -124,6 +142,14 @@ for _, v in ipairs(requiredFunctions) do
     end
 end
 
+--// UI Cleanup
+local wizardLibary = coreGui:FindFirstChild("WizardLibrary")
+if wizardLibary then
+    wizardLibary:Destroy()
+end
+
+task.wait(1)
+
 --// Data Handler
 local mainFolder = "Peteware"
 local toolboxFolder = mainFolder .. "/Toolbox"
@@ -165,11 +191,6 @@ end
 --// Notification Sender
 local notificationSound
 if getcustomasset and bell_ring_mp3 then
-    local oldNotificationSound = soundService:FindFirstChild("PetewareNotification")
-    if oldNotificationSound then
-        oldNotificationSound:Destroy()
-    end
-    
     notificationSound = Instance.new("Sound", soundService)
     notificationSound.Name = "PetewareNotification"
     notificationSound.SoundId = getcustomasset(bell_ring_mp3)
@@ -241,14 +262,6 @@ local function SendInteractiveNotification(options)
         end
     end)
 end
-
---// UI Cleanup
-local wizardLibary = coreGui:FindFirstChild("WizardLibrary")
-if wizardLibary then
-    wizardLibary:Destroy()
-end
-
-task.wait(1)
 
 local optionalFunctions = {
     getcustomasset,
@@ -1258,10 +1271,15 @@ if newUI then
 end
 
 --// Events
-local conn = coreGui.ChildRemoved:Connect(function(child)
+local conn
+conn = coreGui.ChildRemoved:Connect(function(child)
     if child.Name == "WizardLibrary" then
         conn:Disconnect()
         conn = nil
+        
+        if notificationSound then
+            notificationSound:Destroy()
+        end
         
         if _G.ToolboxVariableTest ~= nil or getgenv().VariableTest ~= nil then
             _G.ToolboxVariableTest = nil
