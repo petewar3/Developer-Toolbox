@@ -189,16 +189,13 @@ if not isfile(bell_ring_mp3) then
 end
 
 --// Notification Sender
-local notificationSound
-if customasset and bell_ring_mp3 then
-    notificationSound = Instance.new("Sound", soundService)
-    notificationSound.Name = "PetewareNotification"
-    notificationSound.SoundId = customasset(bell_ring_mp3)
-    notificationSound.Volume = 1
-    notificationSound.Archivable = false
+local notificationSound = Instance.new("Sound", soundService)
+notificationSound.Name = "PetewareNotification"
+notificationSound.SoundId = customasset(bell_ring_mp3) or "rbxassetid://2502368191"
+notificationSound.Volume = 1
+notificationSound.Archivable = false
     
-    notificationSound.Loaded:Wait()
-end
+notificationSound.Loaded:Wait()
 
 if customasset and bell_ring_png then
     bell_ring_png = customasset(bell_ring_png)
@@ -1093,6 +1090,12 @@ Other:CreateToggle("Notification Sounds", function(value)
         SendNotification("Notification Sounds Disabled.")
     end
 end)
+
+--// Notification Sounds Toggle Setup
+local imageToggle = game:GetService("CoreGui").WizardLibrary.Container["DevToolbox|PetewareWindow"].Body.OtherSection.NotificationSoundsToggleHolder.ToggleBackground.ToggleButton
+if imageToggle then
+    imageToggle.ImageTransparency = 0
+end
 
 Other:CreateButton("FPS Booster", function()
     PlayNotificationSound()
