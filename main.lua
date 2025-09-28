@@ -32,7 +32,7 @@ else
 end
 
 task.delay(5, function()
-    if getgenv().ToolboxExecuting then
+    if getgenv().ToolboxExecuting ~= nil then
         getgenv().ToolboxExecuting = nil
         local errorSound = Instance.new("Sound")
         errorSound.Name = "PetewareErrorNotification"
@@ -1233,11 +1233,6 @@ Other:CreateButton("Exit Toolbox", function()
         Button2 = "No",
         Callback = function(value)
             if value == "Yes" then
-                if _G.ToolboxVariableTest ~= nil or getgenv().VariableTest ~= nil then
-                    _G.ToolboxVariableTest = nil
-                    getgenv().ToolboxVariableTest = nil
-                end
-                
                 pcall(function() 
                     coreGui:FindFirstChild("WizardLibrary"):Destroy()
                 end)
@@ -1264,10 +1259,22 @@ end
 
 --// Events
 local conn = coreGui.ChildRemoved:Connect(function(child)
-    if child.Name == "WizardLibrary" and clientAntiKick ~= nil then
-        clientAntiKick = nil
-        instantProximityPrompts = nil
+    if child.Name == "WizardLibrary" then
         conn:Disconnect()
+        conn = nil
+        
+        if _G.ToolboxVariableTest ~= nil or getgenv().VariableTest ~= nil then
+            _G.ToolboxVariableTest = nil
+            getgenv().ToolboxVariableTest = nil
+        end
+        
+        if clientAntiKick ~= nil then
+            clientAntiKick = nil
+        end
+        
+        if instantProximityPrompts ~= nil then
+            instantProximityPrompts = nil
+        end
     end
 end)
 
