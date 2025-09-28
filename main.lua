@@ -83,7 +83,7 @@ clonefunction = clonefunction or function(func)
     end
 end
 
-getcustomasset = clonefunction(getcustomasset or getsynasset)
+customasset = clonefunction(customasset or getsynasset)
 makefolder = clonefunction(makefolder)
 isfolder = clonefunction(isfolder)
 writefile = clonefunction(writefile)
@@ -190,18 +190,18 @@ end
 
 --// Notification Sender
 local notificationSound
-if getcustomasset and bell_ring_mp3 then
+if customasset and bell_ring_mp3 then
     notificationSound = Instance.new("Sound", soundService)
     notificationSound.Name = "PetewareNotification"
-    notificationSound.SoundId = getcustomasset(bell_ring_mp3)
+    notificationSound.SoundId = customasset(bell_ring_mp3)
     notificationSound.Volume = 1
     notificationSound.Archivable = false
     
     notificationSound.Loaded:Wait()
 end
 
-if getcustomasset and bell_ring_png then
-    bell_ring_png = getcustomasset(bell_ring_png)
+if customasset and bell_ring_png then
+    bell_ring_png = customasset(bell_ring_png)
 end
 
 if not bell_ring_png then
@@ -264,7 +264,7 @@ local function SendInteractiveNotification(options)
 end
 
 local optionalFunctions = {
-    getcustomasset,
+    customasset,
     makefolder,
     isfolder,
     writefile,
@@ -315,6 +315,7 @@ end
 --// Server Hop
 local function ServerHop()
     SendNotification("Attempting to Server Hop")
+    task.wait(1)
     if httprequest then
         local servers = {}
         local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.placeId)})
