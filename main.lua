@@ -779,7 +779,7 @@ local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/petew
 
 local PetewareToolbox = Library:NewWindow("Dev Toolbox | Peteware")
 
-local Tools = PetewareToolbox:NewSection("Toolbox")
+local Tools = PetewareToolbox:NewSection("Tools")
 
 Tools:CreateButton("Infinite Yield", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
