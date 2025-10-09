@@ -77,12 +77,6 @@ if getgenv().ToolboxErrorScheduled == nil then
 end
 
 --// Services & Setup
-clonefunction = clonefunction or function(func)
-    return function(...)
-        return func(...)
-    end
-end
-
 customasset = clonefunction(customasset or getsynasset)
 makefolder = clonefunction(makefolder)
 isfolder = clonefunction(isfolder)
@@ -720,12 +714,12 @@ Tools:CreateButton("Hydroxide", function()
     local owner = "petewar3"
     local branch = "revision"
     
-    local function webImport(file)
+    local function WebImport(file)
         return loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide-Backup/%s/%s.lua"):format(owner, branch, file)), file .. '.lua')()
     end
     
-    webImport("init")
-    webImport("ui/main")
+    WebImport("init")
+    WebImport("ui/main")
 end)
 
 Tools:CreateButton("Ketamine", function()
@@ -1206,4 +1200,4 @@ Cherry: Ketamine
 Cherry Discord Server: https://discord.gg/7xYqrnwSWr
 RIP#6666: FPS Booster
 RIP#6666 Discord Server: https://discord.gg/rips
-]]
+]] 
