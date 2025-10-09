@@ -77,7 +77,17 @@ if getgenv().ToolboxErrorScheduled == nil then
 end
 
 --// Services & Setup
-customasset = clonefunction(customasset or getsynasset)
+clonefunction = clonefunction or function(func)
+    if typeof(func) ~= "function" then
+        return nil
+    end
+    
+    return function(...)
+        return func(...)
+    end
+end
+
+customasset = clonefunction(getcustomasset or getsynasset)
 makefolder = clonefunction(makefolder)
 isfolder = clonefunction(isfolder)
 writefile = clonefunction(writefile)
