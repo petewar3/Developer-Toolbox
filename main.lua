@@ -310,7 +310,11 @@ end
 local function RejoinServer()
     SendNotification("Attempting to Rejoin Server")
     task.delay(1, function()
-        game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, game.jobId)
+        if game.PrivateServerId ~= "" then
+            game:GetService("TeleportService"):TeleportToPrivateServer(game.PlaceId, game.PrivateServerId)
+        else
+            game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, game.jobId)
+        end
     end)
 end
 
