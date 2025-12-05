@@ -18,8 +18,8 @@ if not game:IsLoaded() then
         task.wait()
     until game:IsLoaded()
 end
-if not getgenv().Settings then
-    getgenv().Settings = {
+if not getgenv().FPS_Booster.Settings then
+    getgenv().FPS_Booster.Settings = {
         Players = {
             ["Ignore Me"] = true,
             ["Ignore Others"] = true,
@@ -89,108 +89,108 @@ local function DescendantOfIgnore(Inst)
     return false
 end
 local function CheckIfBad(Inst)
-    if not Inst:IsDescendantOf(Players) and (getgenv().Settings.Players["Ignore Others"] and not PartOfCharacter(Inst) 
-    or not getgenv().Settings.Players["Ignore Others"]) and (getgenv().Settings.Players["Ignore Me"] and ME.Character and not Inst:IsDescendantOf(ME.Character) 
-    or not getgenv().Settings.Players["Ignore Me"]) and (getgenv().Settings.Players["Ignore Tools"] and not Inst:IsA("BackpackItem") and not Inst:FindFirstAncestorWhichIsA("BackpackItem") 
-    or not getgenv().Settings.Players["Ignore Tools"]) and (getgenv().Ignore and not table.find(getgenv().Ignore, Inst) and not DescendantOfIgnore(Inst) 
+    if not Inst:IsDescendantOf(Players) and (getgenv().FPS_Booster.Settings.Players["Ignore Others"] and not PartOfCharacter(Inst) 
+    or not getgenv().FPS_Booster.Settings.Players["Ignore Others"]) and (getgenv().FPS_Booster.Settings.Players["Ignore Me"] and ME.Character and not Inst:IsDescendantOf(ME.Character) 
+    or not getgenv().FPS_Booster.Settings.Players["Ignore Me"]) and (getgenv().FPS_Booster.Settings.Players["Ignore Tools"] and not Inst:IsA("BackpackItem") and not Inst:FindFirstAncestorWhichIsA("BackpackItem") 
+    or not getgenv().FPS_Booster.Settings.Players["Ignore Tools"]) and (getgenv().Ignore and not table.find(getgenv().Ignore, Inst) and not DescendantOfIgnore(Inst) 
     or (not getgenv().Ignore or type(getgenv().Ignore) ~= "table" or #getgenv().Ignore <= 0)) then
         if Inst:IsA("DataModelMesh") then
             if Inst:IsA("SpecialMesh") then
-                if getgenv().Settings.Meshes.NoMesh then
+                if getgenv().FPS_Booster.Settings.Meshes.NoMesh then
                     Inst.MeshId = ""
                 end
-                if getgenv().Settings.Meshes.NoTexture then
+                if getgenv().FPS_Booster.Settings.Meshes.NoTexture then
                     Inst.TextureId = ""
                 end
             end
-            if getgenv().Settings.Meshes.Destroy or getgenv().Settings["No Meshes"] then
+            if getgenv().FPS_Booster.Settings.Meshes.Destroy or getgenv().FPS_Booster.Settings["No Meshes"] then
                 Inst:Destroy()
             end
         elseif Inst:IsA("FaceInstance") then
-            if getgenv().Settings.Images.Invisible then
+            if getgenv().FPS_Booster.Settings.Images.Invisible then
                 Inst.Transparency = 1
                 Inst.Shiny = 1
             end
-            if getgenv().Settings.Images.LowDetail then
+            if getgenv().FPS_Booster.Settings.Images.LowDetail then
                 Inst.Shiny = 1
             end
-            if getgenv().Settings.Images.Destroy then
+            if getgenv().FPS_Booster.Settings.Images.Destroy then
                 Inst:Destroy()
             end
         elseif Inst:IsA("ShirtGraphic") then
-            if getgenv().Settings.Images.Invisible then
+            if getgenv().FPS_Booster.Settings.Images.Invisible then
                 Inst.Graphic = ""
             end
-            if getgenv().Settings.Images.Destroy then
+            if getgenv().FPS_Booster.Settings.Images.Destroy then
                 Inst:Destroy()
             end
         elseif table.find(CanBeEnabled, Inst.ClassName) then
-            if getgenv().Settings["Invisible Particles"] or getgenv().Settings["No Particles"] or (getgenv().Settings.Other and getgenv().Settings.Other["Invisible Particles"]) or (getgenv().Settings.Particles and getgenv().Settings.Particles.Invisible) then
+            if getgenv().FPS_Booster.Settings["Invisible Particles"] or getgenv().FPS_Booster.Settings["No Particles"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Invisible Particles"]) or (getgenv().FPS_Booster.Settings.Particles and getgenv().FPS_Booster.Settings.Particles.Invisible) then
                 Inst.Enabled = false
             end
-            if (getgenv().Settings.Other and getgenv().Settings.Other["No Particles"]) or (getgenv().Settings.Particles and getgenv().Settings.Particles.Destroy) then
+            if (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["No Particles"]) or (getgenv().FPS_Booster.Settings.Particles and getgenv().FPS_Booster.Settings.Particles.Destroy) then
                 Inst:Destroy()
             end
-        elseif Inst:IsA("PostEffect") and (getgenv().Settings["No Camera Effects"] or (getgenv().Settings.Other and getgenv().Settings.Other["No Camera Effects"])) then
+        elseif Inst:IsA("PostEffect") and (getgenv().FPS_Booster.Settings["No Camera Effects"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["No Camera Effects"])) then
             Inst.Enabled = false
         elseif Inst:IsA("Explosion") then
-            if getgenv().Settings["Smaller Explosions"] or (getgenv().Settings.Other and getgenv().Settings.Other["Smaller Explosions"]) or (getgenv().Settings.Explosions and getgenv().Settings.Explosions.Smaller) then
+            if getgenv().FPS_Booster.Settings["Smaller Explosions"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Smaller Explosions"]) or (getgenv().FPS_Booster.Settings.Explosions and getgenv().FPS_Booster.Settings.Explosions.Smaller) then
                 Inst.BlastPressure = 1
                 Inst.BlastRadius = 1
             end
-            if getgenv().Settings["Invisible Explosions"] or (getgenv().Settings.Other and getgenv().Settings.Other["Invisible Explosions"]) or (getgenv().Settings.Explosions and getgenv().Settings.Explosions.Invisible) then
+            if getgenv().FPS_Booster.Settings["Invisible Explosions"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Invisible Explosions"]) or (getgenv().FPS_Booster.Settings.Explosions and getgenv().FPS_Booster.Settings.Explosions.Invisible) then
                 Inst.BlastPressure = 1
                 Inst.BlastRadius = 1
                 Inst.Visible = false
             end
-            if getgenv().Settings["No Explosions"] or (getgenv().Settings.Other and getgenv().Settings.Other["No Explosions"]) or (getgenv().Settings.Explosions and getgenv().Settings.Explosions.Destroy) then
+            if getgenv().FPS_Booster.Settings["No Explosions"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["No Explosions"]) or (getgenv().FPS_Booster.Settings.Explosions and getgenv().FPS_Booster.Settings.Explosions.Destroy) then
                 Inst:Destroy()
             end
         elseif Inst:IsA("Clothing") or Inst:IsA("SurfaceAppearance") or Inst:IsA("BaseWrap") then
-            if getgenv().Settings["No Clothes"] or (getgenv().Settings.Other and getgenv().Settings.Other["No Clothes"]) then
+            if getgenv().FPS_Booster.Settings["No Clothes"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["No Clothes"]) then
                 Inst:Destroy()
             end
         elseif Inst:IsA("BasePart") and not Inst:IsA("MeshPart") then
-            if getgenv().Settings["Low Quality Parts"] or (getgenv().Settings.Other and getgenv().Settings.Other["Low Quality Parts"]) then
+            if getgenv().FPS_Booster.Settings["Low Quality Parts"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Low Quality Parts"]) then
                 Inst.Material = Enum.Material.Plastic
                 Inst.Reflectance = 0
             end
         elseif Inst:IsA("TextLabel") and Inst:IsDescendantOf(workspace) then
-            if getgenv().Settings["Lower Quality TextLabels"] or (getgenv().Settings.Other and getgenv().Settings.Other["Lower Quality TextLabels"]) or (getgenv().Settings.TextLabels and getgenv().Settings.TextLabels.LowerQuality) then
+            if getgenv().FPS_Booster.Settings["Lower Quality TextLabels"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Lower Quality TextLabels"]) or (getgenv().FPS_Booster.Settings.TextLabels and getgenv().FPS_Booster.Settings.TextLabels.LowerQuality) then
                 Inst.Font = Enum.Font.SourceSans
                 Inst.TextScaled = false
                 Inst.RichText = false
                 Inst.TextSize = 14
             end
-            if getgenv().Settings["Invisible TextLabels"] or (getgenv().Settings.Other and getgenv().Settings.Other["Invisible TextLabels"]) or (getgenv().Settings.TextLabels and getgenv().Settings.TextLabels.Invisible) then
+            if getgenv().FPS_Booster.Settings["Invisible TextLabels"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Invisible TextLabels"]) or (getgenv().FPS_Booster.Settings.TextLabels and getgenv().FPS_Booster.Settings.TextLabels.Invisible) then
                 Inst.Visible = false
             end
-            if getgenv().Settings["No TextLabels"] or (getgenv().Settings.Other and getgenv().Settings.Other["No TextLabels"]) or (getgenv().Settings.TextLabels and getgenv().Settings.TextLabels.Destroy) then
+            if getgenv().FPS_Booster.Settings["No TextLabels"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["No TextLabels"]) or (getgenv().FPS_Booster.Settings.TextLabels and getgenv().FPS_Booster.Settings.TextLabels.Destroy) then
                 Inst:Destroy()
             end
         elseif Inst:IsA("Model") then
-            if getgenv().Settings["Low Quality Models"] or (getgenv().Settings.Other and getgenv().Settings.Other["Low Quality Models"]) then
+            if getgenv().FPS_Booster.Settings["Low Quality Models"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Low Quality Models"]) then
                 Inst.LevelOfDetail = 1
             end
         elseif Inst:IsA("MeshPart") then
-            if getgenv().Settings["Low Quality MeshParts"] or (getgenv().Settings.Other and getgenv().Settings.Other["Low Quality MeshParts"]) or (getgenv().Settings.MeshParts and getgenv().Settings.MeshParts.LowerQuality) then
+            if getgenv().FPS_Booster.Settings["Low Quality MeshParts"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Low Quality MeshParts"]) or (getgenv().FPS_Booster.Settings.MeshParts and getgenv().FPS_Booster.Settings.MeshParts.LowerQuality) then
                 Inst.RenderFidelity = 2
                 Inst.Reflectance = 0
                 Inst.Material = Enum.Material.Plastic
             end
-            if getgenv().Settings["Invisible MeshParts"] or (getgenv().Settings.Other and getgenv().Settings.Other["Invisible MeshParts"]) or (getgenv().Settings.MeshParts and getgenv().Settings.MeshParts.Invisible) then
+            if getgenv().FPS_Booster.Settings["Invisible MeshParts"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Invisible MeshParts"]) or (getgenv().FPS_Booster.Settings.MeshParts and getgenv().FPS_Booster.Settings.MeshParts.Invisible) then
                 Inst.Transparency = 1
                 Inst.RenderFidelity = 2
                 Inst.Reflectance = 0
                 Inst.Material = Enum.Material.Plastic
             end
-            if getgenv().Settings.MeshParts and getgenv().Settings.MeshParts.NoTexture then
+            if getgenv().FPS_Booster.Settings.MeshParts and getgenv().FPS_Booster.Settings.MeshParts.NoTexture then
                 Inst.TextureID = ""
             end
-            if getgenv().Settings.MeshParts and getgenv().Settings.MeshParts.NoMesh then
+            if getgenv().FPS_Booster.Settings.MeshParts and getgenv().FPS_Booster.Settings.MeshParts.NoMesh then
                 Inst.MeshId = ""
             end
-            if getgenv().Settings["No MeshParts"] or (getgenv().Settings.Other and getgenv().Settings.Other["No MeshParts"]) or (getgenv().Settings.MeshParts and getgenv().Settings.MeshParts.Destroy) then
+            if getgenv().FPS_Booster.Settings["No MeshParts"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["No MeshParts"]) or (getgenv().FPS_Booster.Settings.MeshParts and getgenv().FPS_Booster.Settings.MeshParts.Destroy) then
                 Inst:Destroy()
             end
         end
@@ -205,7 +205,7 @@ if getgenv().SendNotifications then
     })
 end
 coroutine.wrap(pcall)(function()
-    if (getgenv().Settings["Low Water Graphics"] or (getgenv().Settings.Other and getgenv().Settings.Other["Low Water Graphics"])) then
+    if (getgenv().FPS_Booster.Settings["Low Water Graphics"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Low Water Graphics"])) then
         local terrain = workspace:FindFirstChildOfClass("Terrain")
         if not terrain then
             repeat
@@ -242,7 +242,7 @@ coroutine.wrap(pcall)(function()
     end
 end)
 coroutine.wrap(pcall)(function()
-    if getgenv().Settings["No Shadows"] or (getgenv().Settings.Other and getgenv().Settings.Other["No Shadows"]) then
+    if getgenv().FPS_Booster.Settings["No Shadows"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["No Shadows"]) then
         Lighting.GlobalShadows = false
         Lighting.FogEnd = 9e9
         Lighting.ShadowSoftness = 0
@@ -271,7 +271,7 @@ coroutine.wrap(pcall)(function()
     end
 end)
 coroutine.wrap(pcall)(function()
-    if getgenv().Settings["Low Rendering"] or (getgenv().Settings.Other and getgenv().Settings.Other["Low Rendering"]) then
+    if getgenv().FPS_Booster.Settings["Low Rendering"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Low Rendering"]) then
         settings().Rendering.QualityLevel = 1
         settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level04
         if getgenv().SendNotifications then
@@ -288,7 +288,7 @@ coroutine.wrap(pcall)(function()
     end
 end)
 coroutine.wrap(pcall)(function()
-    if getgenv().Settings["Reset Materials"] or (getgenv().Settings.Other and getgenv().Settings.Other["Reset Materials"]) then
+    if getgenv().FPS_Booster.Settings["Reset Materials"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["Reset Materials"]) then
         for i, v in pairs(MaterialService:GetChildren()) do
             v:Destroy()
         end
@@ -307,22 +307,22 @@ coroutine.wrap(pcall)(function()
     end
 end)
 coroutine.wrap(pcall)(function()
-    if getgenv().Settings["FPS Cap"] or (getgenv().Settings.Other and getgenv().Settings.Other["FPS Cap"]) then
+    if getgenv().FPS_Booster.Settings["FPS Cap"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["FPS Cap"]) then
         if setfpscap then
-            if type(getgenv().Settings["FPS Cap"] or (getgenv().Settings.Other and getgenv().Settings.Other["FPS Cap"])) == "string" or type(getgenv().Settings["FPS Cap"] or (getgenv().Settings.Other and getgenv().Settings.Other["FPS Cap"])) == "number" then
-                setfpscap(tonumber(getgenv().Settings["FPS Cap"] or (getgenv().Settings.Other and getgenv().Settings.Other["FPS Cap"])))
+            if type(getgenv().FPS_Booster.Settings["FPS Cap"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["FPS Cap"])) == "string" or type(getgenv().FPS_Booster.Settings["FPS Cap"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["FPS Cap"])) == "number" then
+                setfpscap(tonumber(getgenv().FPS_Booster.Settings["FPS Cap"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["FPS Cap"])))
                 if getgenv().SendNotifications then
                     StarterGui:SetCore("SendNotification", {
                         Title = "discord.gg/rips",
-                        Text = "FPS Capped to " .. tostring(getgenv().Settings["FPS Cap"] or (getgenv().Settings.Other and getgenv().Settings.Other["FPS Cap"])),
+                        Text = "FPS Capped to " .. tostring(getgenv().FPS_Booster.Settings["FPS Cap"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["FPS Cap"])),
                         Duration = 5,
                         Button1 = "Okay"
                     })
                 end
                 if getgenv().ConsoleLogs then
-                    warn("FPS Capped to " .. tostring(getgenv().Settings["FPS Cap"] or (getgenv().Settings.Other and getgenv().Settings.Other["FPS Cap"])))
+                    warn("FPS Capped to " .. tostring(getgenv().FPS_Booster.Settings["FPS Cap"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["FPS Cap"])))
                 end
-            elseif getgenv().Settings["FPS Cap"] or (getgenv().Settings.Other and getgenv().Settings.Other["FPS Cap"]) == true then
+            elseif getgenv().FPS_Booster.Settings["FPS Cap"] or (getgenv().FPS_Booster.Settings.Other and getgenv().FPS_Booster.Settings.Other["FPS Cap"]) == true then
                 setfpscap(1e6)
                 if getgenv().SendNotifications then
                     StarterGui:SetCore("SendNotification", {
@@ -348,7 +348,7 @@ coroutine.wrap(pcall)(function()
     end
 end)
 coroutine.wrap(pcall)(function()
-    if getgenv().Settings.Other["ClearNilInstances"] then
+    if getgenv().FPS_Booster.Settings.Other["ClearNilInstances"] then
         if getnilinstances then
             for _, v in pairs(getnilinstances()) do
                 pcall(v.Destroy, v)
