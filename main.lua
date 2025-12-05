@@ -45,10 +45,14 @@ end
 if getgenv().ToolboxErrorScheduled == nil then
     getgenv().ToolboxErrorScheduled = true
     
-    task.delay(5, function()
+    task.delay(8, function()
         if getgenv().ToolboxExecuting ~= nil then
             getgenv().ToolboxExecuting = nil
             getgenv().ToolboxErrorScheduled = nil
+            
+            if cancelToolboxLoading then
+                return
+            end
             
             local errorSound = Instance.new("Sound")
             errorSound.Name = "PetewareErrorNotification"
@@ -102,6 +106,7 @@ hookfunction = clonefunction(hookfunction)
 hookmetamethod = clonefunction(hookmetamethod)
 identifyexecutor = clonefunction(identifyexecutor)
 getthreadcontext = clonefunction(getthreadcontext)
+cloneref = clonefunction(cloneref)
 
 local player = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
@@ -153,6 +158,44 @@ if wizardLibary then
 end
 
 task.wait(1)
+
+--// Detection Handler
+local detected = false -- change this to true if you want the toolbox to be detected by in-game anti-cheat. useful when testing anti-cheats
+
+local function HandleDetections(boolean)
+    local hookRequiredFunctions = {
+        "hookmetamethod",
+        "cloneref",
+        "getnamecallmethod"
+    }
+    
+    for _, func in ipairs(hookRequiredFunctions) do
+        if not func then
+            Notify("Incompatible Exploit. Your exploit does not support in-game anti-cheat detection handling (missing " .. tostring(v) .. ")")
+            SendInteractiveNotification({
+                Text = "Are you sure you want to proceed with loading the developers toolbox? You may be detected by in-game anti-cheats.",
+                Button1 = "Yes",
+                Button2 = "No",
+                Callback = function(value)
+                    return value
+                end
+            })
+        end
+    end
+    
+    local contentProvider = cloneref(game:GetService("ContentProvider"))
+    
+    local old; old = hookmetamethod(game, "__namecall", function(self, ...)
+        local args = { ... }
+        local method = getnamecallmethod()
+        
+        if self == contentProvider and method == "GetAssetFetchStatus" then
+            return Enum.AssetFetchStatus.None
+        end
+        
+        return old(self, ...)
+    end)
+end
 
 --// Data Handler
 local mainFolder = "Peteware"
@@ -263,6 +306,11 @@ local function SendInteractiveNotification(options)
             bindable:Destroy()
         end
     end)
+end
+
+local cancelToolboxLoading = HandleDetections(detected)
+if cancelToolboxLoading then
+    return Notify("Toolbox loading cancelled.")
 end
 
 local optionalFunctions = {
@@ -1107,7 +1155,7 @@ end
 
 Other:CreateButton("FPS Booster", function()
     PlayNotificationSound()
-    _G.Settings = {
+    getgenv().FPS_Booster.Settings = {
         Players = {
             ["Ignore Me"] = true, -- Ignore your Character
             ["Ignore Others"] = true -- Ignore other Characters
@@ -1130,7 +1178,7 @@ Other:CreateButton("FPS Booster", function()
         ["Low Rendering"] = true, -- Lower Rendering
         ["Low Quality Parts"] = true -- Lower quality parts
         }
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/CasperFlyModz/discord.gg-rips/main/FPSBooster.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/FPS-Booster-Backup.lua"))()
 end)
 
 Other:CreateButton("Executor Info", function()
