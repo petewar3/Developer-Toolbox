@@ -1155,7 +1155,7 @@ end
 
 Other:CreateButton("FPS Booster", function()
     PlayNotificationSound()
-    getgenv().FPS_Booster.Settings = {
+    getgenv().FPS_Booster_Settings = {
         Players = {
             ["Ignore Me"] = true, -- Ignore your Character
             ["Ignore Others"] = true -- Ignore other Characters
