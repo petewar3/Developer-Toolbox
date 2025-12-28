@@ -1,0 +1,47 @@
+-- hidden script decompiler: decompiles all game scripts that attempted to hide themself
+game:GetService("StarterGui"):OpenDevConsole()
+if not decompile or not getscriptbytecode or not getnilinstances then
+    return warn("unsupported exploit.")
+end
+
+local _decompile = decompile
+
+decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
+    if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and #getscriptbytecode(scr) ~= 0 then
+        return _decompile(scr)
+    end
+end
+
+local main_folder = "HIDDEN_SCRIPTS_DECOMPILED"
+
+local scripts = {
+    ["LocalScript"] = main_folder .. "/LocalScript",
+    ["ModuleScript"] = main_folder .. "/ModuleScript",
+    ["Script"] = main_folder .. "/Script"
+}
+
+if not isfolder(main_folder) then
+    makefolder(main_folder)
+end
+
+for _, script in ipairs(scripts) do
+    if not isfolder(script) then
+        makefolder(script)
+    end
+end
+
+-- keyword configuration to check for scripts with keywords
+local use_search_keyword = false
+local search_keyword = "getfenv"
+
+for _, instance in ipairs(getnilinstances()) do
+    if instance:IsA("LocalScript") then
+        warn("Decompiling Script:", instance.Name)
+        local src = decompile(instance)
+        if src and (not use_search_keyword or src:find(search_keyword)) then
+            warn("HIDDEN GAME SCRIPT FOUND:", instance.Name)
+            setclipboard(src)
+            writefile(scripts[instance.ClassName] .. "/" .. instance.Name, src)
+        end
+    end
+end
