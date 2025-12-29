@@ -25,7 +25,7 @@ if not game:IsLoaded() then
 end
 
 --// Executing Check
-if getgenv().ToolboxExecuting then
+if getgenv().Toolbox and getgenv().Toolbox.Executing then
     return game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Toolbox",
         Text = "Already Loading. Please Wait!",
@@ -33,7 +33,8 @@ if getgenv().ToolboxExecuting then
         Duration = 3.5
     })
 else
-    getgenv().ToolboxExecuting = true
+    getgenv().Toolbox = {}
+    getgenv().Toolbox.Executing = true
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Toolbox",
         Text = "Developers Toolbox Loading! Please wait...",
@@ -42,13 +43,13 @@ else
     })
 end
 
-if getgenv().ToolboxErrorScheduled == nil then
-    getgenv().ToolboxErrorScheduled = true
+if getgenv().Toolbox.ErrorScheduled == nil then
+    getgenv().Toolbox.ErrorScheduled = true
     
     task.delay(8, function()
-        if getgenv().ToolboxExecuting ~= nil then
-            getgenv().ToolboxExecuting = nil
-            getgenv().ToolboxErrorScheduled = nil
+        if getgenv().Toolbox.Executing then
+            getgenv().Toolbox.Executing = nil
+            getgenv().Toolbox.ErrorScheduled = nil
             
             if cancelToolboxLoading then
                 return
@@ -75,7 +76,7 @@ if getgenv().ToolboxErrorScheduled == nil then
                 Duration = 4.5
             })
         else
-            getgenv().ToolboxErrorScheduled = nil
+            getgenv().Toolbox.ErrorScheduled = nil
         end
     end)
 end
@@ -111,6 +112,8 @@ cloneref = cloneref and clonefunction(cloneref)
 local player = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
 local starterGui = game:GetService("StarterGui")
+local teleportService = game:GetService("TeleportService")
+local httpService = game:GetService("HttpService")
 local userInputService = game:GetService("UserInputService")
 local soundService = game:GetService("SoundService")
 
@@ -318,6 +321,7 @@ local optionalFunctions = {
     makefolder,
     isfolder,
     writefile,
+    delfile,
     isfile,
     readfile,
     loadstring,
@@ -359,56 +363,107 @@ local function RejoinServer()
     SendNotification("Attempting to Rejoin Server")
     task.delay(1, function()
         if game.PrivateServerId ~= "" then
-            game:GetService("TeleportService"):TeleportToPrivateServer(game.PlaceId, game.PrivateServerId)
+            return SendNotification("Failed to Rejoin Server. Cannot rejoin a private server.")
         else
-            game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, game.jobId)
+            teleportService:TeleportToPlaceInstance(game.placeId, game.jobId)
         end
     end)
 end
 
 --// Server Hop
+local serverHopData = toolboxFolder .. "server-hop-data-temp.json"
+
+local serverIDs = {}
+local foundAnything = ""
+local actualHour = os.date("!*t").hour
+
+if isfile(serverHopData) then
+    serverIDs = httpService:JSONDecode(readfile(serverHopData))
+end
+
+if typeof(serverIDs) ~= "table" or #serverIDs == 0 then
+    serverIDs = { actualHour }
+    writefile(serverHopData, httpService:JSONEncode(serverIDs))
+end
+
 local function ServerHop()
     SendNotification("Attempting to Server Hop")
-    task.wait(1)
-    if httprequest then
-        local servers = {}
-        local req = httprequest({Url = string.format("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Desc&limit=100&excludeFullGames=true", game.placeId)})
-        local body = game:GetService("HttpService"):JSONDecode(req.Body)
+    local function AttemptServerHop()
+        local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
 
-        if body and body.data then
-            for i, v in next, body.data do
-                if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.jobId then
-                    table.insert(servers, 1, v.id)
+        if foundAnything ~= "" then
+            url = url .. "&cursor=" .. foundAnything
+        end
+
+        local success, site = pcall(function()
+            return httpService:JSONDecode(game:HttpGet(url))
+        end)
+
+        if not success or not site or not site.data then
+            return
+        end
+
+        if site.nextPageCursor then
+            foundAnything = site.nextPageCursor
+        end
+
+        for _, v in pairs(site.data) do
+            if v.playing < v.maxPlayers then
+                local serverId = tostring(v.id)
+                local canHop = true
+
+                for i, existing in pairs(serverIDs) do
+                    if i == 1 and existing ~= actualHour then
+                        if delfile then
+                            delfile(serverHopData)
+                        end
+                        serverIDs = { actualHour }
+                        break
+                    end
+
+                    if serverId == tostring(existing) then
+                        canHop = false
+                        break
+                    end
+                end
+
+                if canHop then
+                    table.insert(serverIDs, serverId)
+                    writefile(serverHopData, httpService:JSONEncode(serverIDs))
+                    teleportService:TeleportToPlaceInstance(game.PlaceId, serverId)
+                    task.wait(4)
+                    return
                 end
             end
         end
+    end
 
-        if #servers > 0 then
-            game:GetService("TeleportService"):TeleportToPlaceInstance(game.placeId, servers[math.random(1, #servers)], Player)
-        else
-            return SendNotification("Server Hop Failed. Couldnt find a available server")
+    while task.wait(1) do
+        pcall(AttemptServerHop)
+
+        if foundAnything ~= "" then
+            pcall(AttemptServerHop)
         end
-    else
-       SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing httprequest)")
     end
 end
 
 local function OpenDevConsole()
-    pcall(function() 
-        starterGui:SetCore("DevConsoleVisible", true) 
-    end)
+    starterGui:SetCore("DevConsoleVisible", true) 
 end
 
---// Execute on Teleport
-local teleportCheck = false
-
+--// Queue on Teleport
 local executeOnTeleport = true -- set to false if you dont want execution on server hop / rejoin
 
-if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not getgenv().ToolboxQueueOnTeleport then
-    getgenv().ToolboxQueueOnTeleport = true
-    game.Players.LocalPlayer.OnTeleport:Connect(function(State)
-        if not teleportCheck and queueteleport then
-            teleportCheck = true
+local validTeleportStates = {
+    Enum.TeleportState.Started,
+    Enum.TeleportState.InProgress,
+    Enum.TeleportState.WaitingForServer
+}
+
+if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not getgenv().Toolbox.QueueOnTeleport then
+    getgenv().Toolbox.QueueOnTeleport = true
+    game.Players.LocalPlayer.OnTeleport:Connect(function(state)
+        if table.find(validTeleportStates, state) and getgenv().Toolbox.QueueOnTeleport and queueteleport then
             queueteleport([[
             if not game:IsLoaded() then
                 game.Loaded:Wait()
@@ -426,133 +481,6 @@ end
 local startTime = os.clock()
 local endTime = os.clock()
 local finalTime = endTime - startTime
-
---// Variable Debugging
-local foundNewgetgenv = false
-local foundNew_GNew = false
-local found_G = false
-
-local original_G = {}
-local original_genv = {}
-
-for k, _ in pairs(_G) do
-    original_G[k] = true
-end
-
-for k, _ in pairs(getgenv()) do
-    original_genv[k] = true
-end
-
-local function DebuggetgenvNew()
-    startTime = os.clock()
-    print([[ [Toolbox]: Scanning for Recently Added getgenv() contents...
-    
----------------------------------------------------------------------------------------------------------------------------
-        
-        ]])
-    
-    for name, value in pairs(getgenv()) do
-        if not original_genv[name] then
-            foundNewgetgenv = true
-            print(" →", name, "=", value)
-        end
-    end
-    
-    if not foundNewgetgenv then
-        warn("[Toolbox]: No Recently Added getgenv() contents found.")
-    end
-    
-    endTime = os.clock()
-    finalTime = endTime - startTime
-    
-    print(string.format([[
-[Toolbox]: Scan completed in %.4f seconds. 
-        
----------------------------------------------------------------------------------------------------------------------------
-        
-        ]], finalTime))
-end
-
-local function Debug_GNew()
-    startTime = os.clock()
-    print([[ [Toolbox]: Scanning for Recently Added _G contents...
-    
----------------------------------------------------------------------------------------------------------------------------
-        
-        ]])
-    
-    for name, value in pairs(_G) do
-        if not original_G[name] then
-            foundNew_G = true
-            print(" →", name, "=", value)
-        end
-    end
-    
-    if not foundNew_G then
-        warn("[Toolbox]: No Recently Added _G contents found.")
-    end
-    
-    endTime = os.clock()
-    finalTime = endTime - startTime
-    
-    print(string.format([[
-[Toolbox]: Scan completed in %.4f seconds. 
-        
----------------------------------------------------------------------------------------------------------------------------
-        
-        ]], finalTime))
-end
-
-local function Debuggetgenv()
-    startTime = os.clock()
-    print([[ [Toolbox]: Scanning for getgenv() contents...
-    
----------------------------------------------------------------------------------------------------------------------------
-        
-        ]])
-    
-    for name, value in pairs(getgenv()) do
-    print(" →", name, "=", value)
-end
-    
-    endTime = os.clock()
-    finalTime = endTime - startTime
-
-    print(string.format([[
-[Toolbox]: Scan completed in %.4f seconds. 
-        
----------------------------------------------------------------------------------------------------------------------------
-        
-        ]], finalTime))
-end
-
-local function Debug_G()
-    startTime = os.clock()
-    print([[[Toolbox]: Scanning for _G contents...
-    
----------------------------------------------------------------------------------------------------------------------------
-        
-        ]])
-    
-    for name, value in pairs(_G) do
-        found_G = true
-    print(" →", name, "=", value)
-end
-
-if not found_G then
-        warn("[Toolbox]: No _G contents found.")
-    end
-    
-    endTime = os.clock()
-    finalTime = endTime - startTime
-
-    print(string.format([[
-[Toolbox]: Scan completed in %.4f seconds. 
-        
----------------------------------------------------------------------------------------------------------------------------
-
-        ]], finalTime))
-end
 
 --// Class Scanning
 foundInstanceClass = false
@@ -668,11 +596,7 @@ end
 
 --// Instant Proximity Prompts
 local proximityPromptService = game:GetService("ProximityPromptService")
-proximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
-    if instantProximityPrompts and fireproximityprompt and typeof(fireproximityprompt) == "function" then
-        fireproximityprompt(prompt)
-    end
-end)
+local proximityPromptConn
 
 --// Client Anti-Kick
 local clientAntiKick
@@ -749,7 +673,7 @@ local function FetchExecutorInfo()
         end
     end
     
-    print("Executor Variables:\n")
+    print("Executor Environment:\n")
     DumpTable(getgenv())
 end
 
@@ -788,178 +712,6 @@ Tools:CreateButton("Ketamine", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Ketamine-Backup.lua"))()
 end)
 
-if device == "PC" then
-local Debugging1 = PetewareToolbox:NewSection("Variable Debugging1")
-
-Debugging1:CreateButton("Print Global Variables V1", function()
-    OpenDevConsole()
-    Debug_G()
-end)
-
-Debugging1:CreateButton("Print Global Variables V2", function()
-    OpenDevConsole()
-    Debuggetgenv()
-end)
-
-Debugging1:CreateButton("Print Recent Global Variables V1", function()
-    OpenDevConsole()
-    Debug_GNew()
-end)
-
-Debugging1:CreateButton("Print Recent Global Variables V2", function()
-    OpenDevConsole()
-    DebuggetgenvNew()
-end)
-
-Debugging1:CreateTextbox("Copy Global Variable V1", function(text)
-    if _G[text] ~= nil then
-        local variableValue = tostring(_G[text])
-        if setclip and typeof(setclip) == "function" then
-            setclip("_G." .. text .. " = " .. variableValue)
-            print("Copied: _G." .. text .. " = " .. variableValue)
-            OpenDevConsole()
-        else
-            return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing setclip)")
-        end
-    else
-        print(text .. " Variable not found in _G.")
-        OpenDevConsole()
-    end
-end)
-
-Debugging1:CreateTextbox("Copy Global Variable V2", function(text)
-    if getgenv()[text] ~= nil then
-        local variableValue = tostring(getgenv()[text])
-        if setclip and typeof(setclip) == "function" then
-            setclip("getgenv()." .. text .. " = " .. variableValue)
-            print("Copied: getgenv()." .. text .. " = " .. variableValue)
-            OpenDevConsole()
-        else
-            return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing setclip)")
-        end
-    else
-        print(text .. " Variable not found in getgenv().")
-        OpenDevConsole()
-    end
-end)
-
-local Debugging2 = PetewareToolbox:NewSection("Variable Debugging2")
-
-Debugging2:CreateTextbox("Create Global Variable V1", function(input)
-local varName, value = input:match("^(%S+)%s*=%s*(.+)$")
-    if varName and value then
-        if _G[varName] == nil then
-            local success, result = pcall(loadstring("return " .. value))
-            if success then
-                _G[varName] = result
-                print("Created: _G." .. varName .. " = " .. tostring(result))
-                OpenDevConsole()
-            else
-                print("Invalid value format.")
-                OpenDevConsole()
-            end
-        else
-            print(varName .. " found in _G. Creating not allowed.")
-            OpenDevConsole()
-        end
-    else
-        print("Invalid input format. Please use 'VariableName = value'.")
-        OpenDevConsole()
-    end
-end)
-
-Debugging2:CreateTextbox("Create Global Variable V2", function(input)
-local varName, value = input:match("^(%S+)%s*=%s*(.+)$")
-    if varName and value then
-        if getgenv()[varName] == nil then
-            local success, result = pcall(loadstring("return " .. value))
-            if success then
-                getgenv()[varName] = result
-                print("Created: getgenv()." .. varName .. " = " .. tostring(result))
-                OpenDevConsole()
-            else
-                print("Invalid value format.")
-                OpenDevConsole()
-            end
-        else
-            print(varName .. " found in getgenv(). Creating not allowed.")
-            OpenDevConsole()
-        end
-    else
-        print("Invalid input format. Please use 'VariableName = value'.")
-        OpenDevConsole()
-    end
-end)
-
-Debugging2:CreateTextbox("Edit Global Variable V1", function(input)
-    local varName, value = input:match("^(%S+)%s*=%s*(.+)$")
-    if varName and value then
-        if _G[varName] ~= nil then
-            local success, result = pcall(loadstring("return " .. value))
-            if success then
-                _G[varName] = result
-                print("Edited: _G." .. varName .. " = " .. tostring(result))
-                OpenDevConsole()
-            else
-                print("Invalid value format.")
-                OpenDevConsole()
-            end
-        else
-            print(varName .. " not found in _G. Editing not allowed.")
-            OpenDevConsole()
-        end
-    else
-        print("Invalid input format. Please use 'VariableName = value'.")
-        OpenDevConsole()
-    end
-end)
-
-Debugging2:CreateTextbox("Edit Global Variable V2", function(input)
-    local varName, value = input:match("^(%S+)%s*=%s*(.+)$")
-    if varName and value then
-        if getgenv()[varName] ~= nil then
-            local success, result = pcall(loadstring("return " .. value))
-            if success then
-                getgenv()[varName] = result
-                print("Edited: getgenv()." .. varName .. " = " .. tostring(result))
-                OpenDevConsole()
-            else
-                print("Invalid value format.")
-                OpenDevConsole()
-            end
-        else
-            print(varName .. " not found in getgenv(). Editing not allowed.")
-            OpenDevConsole()
-        end
-    else
-        print("Invalid input format. Please use 'VariableName = value'.")
-        OpenDevConsole()
-    end
-end)
-
-Debugging2:CreateTextbox("Delete Global Variable V1", function(text)
-    if _G[text] ~= nil then
-        _G[text] = nil
-        print("Deleted: _G." .. text)
-        OpenDevConsole()
-    else
-        print(text .. " not found in _G.")
-        OpenDevConsole()
-    end
-end)
-
-Debugging2:CreateTextbox("Delete Global Variable V2", function(text)
-    if getgenv()[text] ~= nil then
-        getgenv()[text] = nil
-        print("Deleted: getgenv()." .. text)
-        OpenDevConsole()
-    else
-        print(text .. " not found in getgenv().")
-        OpenDevConsole()
-    end
-end)
-end
-
 local InstanceScanner = PetewareToolbox:NewSection("Instance Scanner")
 
 InstanceScanner:CreateButton("Fetch All Available Classes", function()
@@ -985,7 +737,7 @@ InstanceScanner:CreateTextbox("Scan by Class", function(className)
 
             local output = "Name → " .. inst.Name .. " | Path → " .. inst:GetFullName()
             local propName = showProperties[className]
-            if propName and inst[propName] ~= nil then
+            if propName and inst[propName] then
                 output = output .. " | " .. propName .. " = " .. tostring(inst[propName])
             end
 
@@ -1106,15 +858,20 @@ end)
 local Other = PetewareToolbox:NewSection("Other")
 
 Other:CreateToggle("Instant Prompts", function(value)
-    instantProximityPrompts = value
-    
     if not fireproximityprompt or typeof(fireproximityprompt) ~= "function" then
         return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing fireproximityprompt)")
     end
     
     if instantProximityPrompts then
+        proximityPromptConn = proximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+            if prompt.Duration > 0 then
+                fireproximityprompt(prompt)
+            end
+        end)
         SendNotification("Instant Proximity Prompts Enabled. You can now instantly interact with Proximity Prompts.")
     else
+        proximityPromptConn:Disconnect()
+        proximityPromptConn = nil
         SendNotification("Instant Proximity Prompt Disabled. You are now unable to interact with Proximity Prompts instantly.")
     end
 end)
@@ -1149,7 +906,9 @@ end)
 
 --// Notification Sounds Toggle Setup
 local imageToggle = game:GetService("CoreGui").WizardLibrary.Container["DevToolbox|PetewareWindow"].Body.OtherSection.NotificationSoundsToggleHolder.ToggleBackground.ToggleButton
-if imageToggle then
+if imageToggle and firesignal then
+    firesignal(imageToggle.MouseButton1Click)
+elseif imageToggle then
     imageToggle.ImageTransparency = 0
 end
 
@@ -1210,14 +969,6 @@ Other:CreateButton("Exit Toolbox", function()
     })
 end)
 
---// Global Variable Testing
-local GlobalVariableTest = true -- set to true to create a _G and a getgenv() Variable for testing
-
-if GlobalVariableTest then
-    _G.ToolboxVariableTest = true
-    getgenv().ToolboxVariableTest = true
-end
-
 --// UI Display Order
 local newUI = coreGui:FindFirstChild("WizardLibrary")
 if newUI then
@@ -1225,33 +976,32 @@ if newUI then
 end
 
 --// Events
-local conn
-conn = coreGui.ChildRemoved:Connect(function(child)
+local uiConn; uiConn = coreGui.ChildRemoved:Connect(function(child)
     if child.Name == "WizardLibrary" then
-        conn:Disconnect()
-        conn = nil
+        uiConn:Disconnect()
+        uiConn = nil
         
         if notificationSound then
             notificationSound:Destroy()
         end
         
-        if _G.ToolboxVariableTest ~= nil or getgenv().VariableTest ~= nil then
-            _G.ToolboxVariableTest = nil
-            getgenv().ToolboxVariableTest = nil
-        end
-        
-        if clientAntiKick ~= nil then
+        if clientAntiKick then
             clientAntiKick = nil
         end
         
-        if instantProximityPrompts ~= nil then
-            instantProximityPrompts = nil
+        if proximityPromptConn then
+            proximityPromptConn:Disconnect()
+            proximityPromptConn = nil
+        end
+        
+        if getgenv().Toolbox.QueueOnTeleport then
+            getgenv().Toolbox.QueueOnTeleport = false
         end
     end
 end)
 
 --// Executing Finished
-getgenv().ToolboxExecuting = nil
+getgenv().Toolbox.Executing = nil
 
 --[[// Credits
 Infinite Yield: Server Hop, Dex Explorer, Remote Spy, Client-Anti-Kick
