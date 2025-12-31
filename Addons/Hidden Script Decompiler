@@ -35,7 +35,7 @@ local use_search_keyword = false
 local search_keyword = "getfenv"
 
 for _, instance in ipairs(getnilinstances()) do
-    if table.find(scripts, instance.ClassName) then
+    if scripts[instance.ClassName] then
         warn("Decompiling Script:", instance.Name)
         local src = decompile(instance)
         if src and (not use_search_keyword or src:find(search_keyword)) then
