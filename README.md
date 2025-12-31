@@ -40,7 +40,7 @@ This project is **fully open source**, allowing anyone to access, modify, and co
 Paste this script into your Roblox executor and execute
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/PetewareScripts/Developers-Toolbox-Peteware/refs/heads/main/main.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Petewar3/Developer-Toolbox/refs/heads/main/main.lua"))()
 ```
 
 ---
