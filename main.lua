@@ -681,10 +681,8 @@ if hookfunction and typeof(hookfunction) == "function" then
     
     oldhmmi = hookfunction(index, newcclosure(function(self, key)
         if clientAntiKick and self == player and key:lower() == "kick" then
-            return function()
-                SendNotification("Blocked Kick Attempt (__index)")
-                --error("Expected ':' not '.' calling member function Kick", 2)
-            end
+            SendNotification("Blocked Kick Attempt (__index)")
+            return
         end
         
         return oldhmmi(self, key)
