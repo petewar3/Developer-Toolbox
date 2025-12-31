@@ -24,7 +24,7 @@ if not isfolder(main_folder) then
     makefolder(main_folder)
 end
 
-for _, script in ipairs(scripts) do
+for _, script in pairs(scripts) do
     if not isfolder(script) then
         makefolder(script)
     end
