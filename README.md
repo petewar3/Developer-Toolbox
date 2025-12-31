@@ -24,8 +24,8 @@ This project is **fully open source**, allowing anyone to access, modify, and co
 - **Instance Scanner**  
   Search game instances by class or property to find targets for exploits.
 
-- **Addons Manager with Auto-Saving**  
-  Add and manage custom addons easily, with automatic saving.
+- **Addons Manager**  
+  Add, manage and execute your own scripts from the addons manager.
 
 - **Quick Launch for Popular Tools**  
   Includes buttons for well-known utilities like Infinite Yield, Remote Spy, Dex Explorer, Hydroxide, and Ketamine
@@ -54,7 +54,11 @@ Please credit Peteware when redistributing.
 
 ## Support
 
+Support for Developer Toolbox is provided primarily through our Discord community:
+Join Discord
 
+Ask questions, report bugs, and discuss features with other users.
+Feature requests are welcome, but may not be implemented immediately.
 
 ---
 
