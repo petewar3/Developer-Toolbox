@@ -125,6 +125,7 @@ identifyexecutor = identifyexecutor and clonefunction(identifyexecutor)
 getthreadcontext = getthreadcontext and clonefunction(getthreadcontext)
 cloneref = cloneref and clonefunction(cloneref)
 newcclosure = clonefunction(newcclosure)
+firesignal = firesignal and clonefunction(firesignal)
 
 local player = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
@@ -392,7 +393,8 @@ local optionalFunctions = {
     newcclosure,
     hookfunction,
     identifyexecutor,
-    getthreadcontext
+    getthreadcontext,
+    firesignal
 }
 
 local compatibilityCount = 0
@@ -923,13 +925,15 @@ end)
 local Other = PetewareToolbox:NewSection("Other")
 
 Other:CreateToggle("Instant Prompts", function(value)
+    instantProximityPrompts = value
+    
     if not fireproximityprompt or typeof(fireproximityprompt) ~= "function" then
         return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing fireproximityprompt)")
     end
     
     if instantProximityPrompts then
         proximityPromptConn = proximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
-            if prompt.Duration > 0 then
+            if prompt.HoldDuration > 0 then
                 fireproximityprompt(prompt)
             end
         end)
@@ -944,7 +948,7 @@ end)
 Other:CreateToggle("Client Anti-Kick", function(value)
     clientAntiKick = value
     
-    if not hookfunction or not typeof(hookfunction) ~= "function" then
+    if not hookfunction or typeof(hookfunction) ~= "function" then
         return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing hookfunction)")
     end
     
@@ -967,9 +971,7 @@ end)
 
 --// Notification Sounds Toggle Setup
 local imageToggle = game:GetService("CoreGui").WizardLibrary.Container["DevToolbox|PetewareWindow"].Body.OtherSection.NotificationSoundsToggleHolder.ToggleBackground.ToggleButton
-if imageToggle and firesignal then
-    firesignal(imageToggle.MouseButton1Click)
-elseif imageToggle then
+if imageToggle then
     imageToggle.ImageTransparency = 0
 end
 
