@@ -743,7 +743,7 @@ local function FetchExecutorInfo()
 end
 
 --// Main UI
-local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Wizard-Backup.lua"))()
+local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/Wizard-Backup.lua"))()
 
 local PetewareToolbox = Library:NewWindow("Dev Toolbox | Peteware")
 
@@ -774,7 +774,7 @@ Tools:CreateButton("Hydroxide", function()
 end)
 
 Tools:CreateButton("Ketamine", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Ketamine-Backup.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/Ketamine-Backup.lua"))()
 end)
 
 local InstanceScanner = PetewareToolbox:NewSection("Instance Scanner")
@@ -998,7 +998,7 @@ Other:CreateButton("FPS Booster", function()
         ["Low Rendering"] = true, -- Lower Rendering
         ["Low Quality Parts"] = true -- Lower quality parts
         }
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/FPS-Booster-Backup.lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/FPS-Booster-Backup.lua"))()
 end)
 
 Other:CreateButton("Executor Info", function()
