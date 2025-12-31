@@ -43,10 +43,23 @@ else
     })
 end
 
+local interactiveNotificationYielding = false
+local errorYielded = false
+
 if getgenv().Toolbox.ErrorScheduled == nil then
     getgenv().Toolbox.ErrorScheduled = true
     
     task.delay(8, function()
+        while interactiveNotificationYielding do
+            yielded = true
+            task.wait()
+            break
+        end
+        
+        if errorYielded then
+            task.wait(8)
+        end
+        
         if getgenv().Toolbox.Executing then
             getgenv().Toolbox.Executing = nil
             getgenv().Toolbox.ErrorScheduled = nil
@@ -92,6 +105,10 @@ clonefunction = clonefunction or function(func)
     end
 end
 
+newcclosure = newcclosure or function(func)
+    return func
+end
+
 customasset = (getcustomasset or getsynasset) and clonefunction(getcustomasset or getsynasset)
 makefolder = makefolder and clonefunction(makefolder)
 isfolder = isfolder and clonefunction(isfolder)
@@ -108,6 +125,7 @@ hookmetamethod = hookmetamethod and clonefunction(hookmetamethod)
 identifyexecutor = identifyexecutor and clonefunction(identifyexecutor)
 getthreadcontext = getthreadcontext and clonefunction(getthreadcontext)
 cloneref = cloneref and clonefunction(cloneref)
+newcclosure = clonefunction(newcclosure)
 
 local player = game:GetService("Players").LocalPlayer
 local coreGui = game:GetService("CoreGui")
@@ -163,11 +181,21 @@ end
 task.wait(1)
 
 --// Detection Handler
-local detected = false -- change this to true if you want the toolbox to be detected by in-game anti-cheat. useful when testing anti-cheats
+local detected = true -- change this to true if you want the toolbox to be detected by in-game anti-cheat. useful when testing anti-cheats
+
+local namecall
+xpcall(function()
+    game:_()
+end, function()
+    namecall = debug.info(2, "f")
+end)
+
+local function SendNotification() end
+local function SendInteractiveNotification() end
 
 local function HandleDetections(boolean)
     local hookRequiredFunctions = {
-        "hookmetamethod",
+        "hookfunction",
         "cloneref",
         "getnamecallmethod"
     }
@@ -180,24 +208,38 @@ local function HandleDetections(boolean)
                 Button1 = "Yes",
                 Button2 = "No",
                 Callback = function(value)
-                    return value
+                    return not value
                 end
-            })
+            }, true)
         end
+    end
+    
+    if boolean then
+        SendInteractiveNotification({
+            Text = "Are you sure you want to proceed with loading the developers toolbox with UI detection on? You may be detected and punished by in-game anti-cheats.",
+            Button1 = "Yes",
+            Button2 = "No",
+            Callback = function(value)
+                return not value
+            end
+        }, true)
     end
     
     local contentProvider = cloneref(game:GetService("ContentProvider"))
     
-    local old; old = hookmetamethod(game, "__namecall", function(self, ...)
-        local args = { ... }
-        local method = getnamecallmethod()
+    local old; old = hookfunction(namecall, newcclosure(function(self, ...)
+        if not checkcaller() then
+            local method = getnamecallmethod()
         
-        if self == contentProvider and method == "GetAssetFetchStatus" then
-            return Enum.AssetFetchStatus.None
+            if self == contentProvider and method == "GetAssetFetchStatus" then
+                return Enum.AssetFetchStatus.None
+            end
         end
         
         return old(self, ...)
-    end)
+    end))
+    
+    return false
 end
 
 --// Data Handler
@@ -262,7 +304,7 @@ local function PlayNotificationSound()
     end
 end
 
-local function SendNotification(text, duration)
+function SendNotification(text, duration)
     PlayNotificationSound()
     
     starterGui:SetCore("SendNotification", {
@@ -273,13 +315,14 @@ local function SendNotification(text, duration)
     })
 end
 
-local function SendInteractiveNotification(options)
+function SendInteractiveNotification(options, yield)
     PlayNotificationSound()
     
     local bindable = Instance.new("BindableFunction")
+    local responseEvent = Instance.new("BindableEvent")
 
     local text = options.Text or "Are you sure?"
-    local duration = options.Duration or 3.5
+    local duration = (yield and 1e9) or options.Duration or 3.5
     local button1 = options.Button1 or "Yes"
     local button2 = options.Button2 or "No"
     local callback = options.Callback
@@ -289,9 +332,17 @@ local function SendInteractiveNotification(options)
             callback(value)
         end
         
+        responseEvent:Fire(value)
+        
         if bindable then
             bindable:Destroy()
         end
+        
+        if responseEvent then
+            responseEvent:Destroy()
+        end
+        
+        interactiveNotificationYielding = false
     end
 
     starterGui:SetCore("SendNotification", {
@@ -308,7 +359,17 @@ local function SendInteractiveNotification(options)
         if bindable then
             bindable:Destroy()
         end
+        
+        if responseEvent then
+            responseEvent:Destroy()
+        end
     end)
+    
+    if yield then
+        interactiveNotificationYielding = true
+        local response = responseEvent.Event:Wait()
+        return response
+    end
 end
 
 local cancelToolboxLoading = HandleDetections(detected)
@@ -329,6 +390,7 @@ local optionalFunctions = {
     queueteleport,
     setclip,
     fireproximityprompt,
+    newcclosure,
     hookfunction,
     hookmetamethod,
     identifyexecutor,
@@ -604,33 +666,40 @@ local oldhmmi
 local oldhmmnc
 local oldKickFunction
 
+local index
+xpcall(function()
+    return game.nonexistent
+end, function()
+    index = debug.info(2, "f")
+end)
+
 if hookfunction and typeof(hookfunction) == "function" then
-    oldKickFunction = hookfunction(player.Kick, function()
+    oldKickFunction = hookfunction(player.Kick, newcclosure(function()
         if clientAntiKick then
             SendNotification("Blocked Kick Attempt (direct call)")
             return
         end
-    end)
-end
-
-if hookmetamethod and typeof(hookmetamethod) == "function" then
-    oldhmmi = hookmetamethod(game, "__index", function(self, method)
-        if clientAntiKick and self == player and method:lower() == "kick" then
+    end))
+    
+    oldhmmi = hookfunction(index, newcclosure(function(self, key)
+        if clientAntiKick and self == player and key:lower() == "kick" then
             return function()
                 SendNotification("Blocked Kick Attempt (__index)")
                 error("Expected ':' not '.' calling member function Kick", 2)
             end
         end
-        return oldhmmi(self, method)
-    end)
-
-    oldhmmnc = hookmetamethod(game, "__namecall", function(self, ...)
-        if clientAntiKick and self == player and getnamecallmethod():lower() == "kick" then
+        
+        return oldhmmi(self, key)
+    end))
+    
+    oldhmmnc = hookfunction(namecall, newcclosure(function(self, ...)
+        if clientAntiKick and self == player and getnamecallmethod:lower() == "kick" then
             SendNotification("Blocked Kick Attempt (__namecall)")
             return
         end
+        
         return oldhmmnc(self, ...)
-    end)
+    end))
 end
 
 --// Executor Statistics
