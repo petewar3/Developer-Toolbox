@@ -181,7 +181,7 @@ end
 task.wait(1)
 
 --// Detection Handler
-local detected = true -- change this to true if you want the toolbox to be detected by in-game anti-cheat. useful when testing anti-cheats
+local detected = false -- change this to true if you want the toolbox to be detected by in-game anti-cheat. useful when testing anti-cheats
 
 local namecall
 xpcall(function()
