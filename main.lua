@@ -121,7 +121,6 @@ queueteleport = ((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus
 setclip = (setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set)) and clonefunction(setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set))
 fireproximityprompt = fireproximityprompt and clonefunction(fireproximityprompt)
 hookfunction = hookfunction and clonefunction(hookfunction)
-hookmetamethod = hookmetamethod and clonefunction(hookmetamethod)
 identifyexecutor = identifyexecutor and clonefunction(identifyexecutor)
 getthreadcontext = getthreadcontext and clonefunction(getthreadcontext)
 cloneref = cloneref and clonefunction(cloneref)
@@ -392,7 +391,6 @@ local optionalFunctions = {
     fireproximityprompt,
     newcclosure,
     hookfunction,
-    hookmetamethod,
     identifyexecutor,
     getthreadcontext
 }
@@ -947,10 +945,6 @@ end)
 
 Other:CreateToggle("Client Anti-Kick", function(value)
     clientAntiKick = value
-    
-    if not hookmetamethod or typeof(hookmetamethod) ~= "function" then
-        return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing hookmetamethod)")
-    end
     
     if not hookfunction or not typeof(hookfunction) ~= "function" then
         return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing hookfunction)")
