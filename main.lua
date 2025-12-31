@@ -691,7 +691,7 @@ if hookfunction and typeof(hookfunction) == "function" then
     end))
     
     oldhmmnc = hookfunction(namecall, newcclosure(function(self, ...)
-        if clientAntiKick and self == player and getnamecallmethod:lower() == "kick" then
+        if clientAntiKick and self == player and getnamecallmethod():lower() == "kick" then
             SendNotification("Blocked Kick Attempt (__namecall)")
             return
         end
