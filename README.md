@@ -61,6 +61,7 @@ You can use the discord to:
 
 - Report bugs or issues
 - Ask questions about usage
+- Participate in the Addons forum, a community space to share and discuss custom user-made addons 
 - Share suggestions for new features or improvements
 
 ---
