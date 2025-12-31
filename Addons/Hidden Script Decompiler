@@ -7,7 +7,7 @@ end
 local _decompile = decompile
 
 decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
-    if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and #getscriptbytecode(scr) ~= 0 then
+    if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and getscriptbytecode(scr) and #getscriptbytecode(scr) ~= 0 then
         return _decompile(scr)
     end
 end
