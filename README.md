@@ -28,7 +28,10 @@ This project is **fully open source**, allowing anyone to access, modify, and co
   Add and manage custom addons easily, with automatic saving.
 
 - **Quick Launch for Popular Tools**  
-  Includes buttons for well-known utilities like Infinite Yield, Remote Spy, Dex Explorer, Hydroxide, and an Advanced Anti-Cheat Scanner.
+  Includes buttons for well-known utilities like Infinite Yield, Remote Spy, Dex Explorer, Hydroxide, and Ketamine
+
+- **Executor Info**
+  Prints useful executor information such as executor level and executor environment.
 
 ---
 
@@ -42,20 +45,17 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/PetewareScripts/Devel
 
 ---
 
-GitHub
-
-Full source and updates:
-https://github.com/PetewareScripts/Developers-Toolbox-Peteware
-
-
----
-
-License
+## License
 
 MIT License — free to use, modify, and share.
 Please credit Peteware when redistributing.
 
+---
+
+## Support
+
+
 
 ---
 
-Developed by Peteware
+## Developed by Peteware
