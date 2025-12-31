@@ -4,11 +4,9 @@ if not decompile or not getscriptbytecode or not getnilinstances then
     return warn("unsupported exploit.")
 end
 
-local _decompile = decompile
-
-decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
+_decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
     if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and typeof(getscriptbytecode(scr)) == "string" and #getscriptbytecode(scr) ~= 0 then
-        return _decompile(scr)
+        return decompile(scr)
     end
 end
 
@@ -37,7 +35,7 @@ local search_keyword = "getfenv"
 for _, instance in ipairs(getnilinstances()) do
     if scripts[instance.ClassName] then
         warn("Decompiling Script:", instance.Name)
-        local src = decompile(instance)
+        local src = _decompile(instance)
         if src and (not use_search_keyword or src:find(search_keyword)) then
             warn("HIDDEN GAME SCRIPT FOUND:", instance.Name)
             setclipboard(src)
