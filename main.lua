@@ -2,7 +2,7 @@
 PLEASE READ - IMPORTANT
 
 © 2025 Peteware
-This project is part of Developers-Toolbox-Peteware, an open-sourced debugging tool for roblox.
+This project is part of Developer-Toolbox, an open-sourced debugging tool for roblox.
 
 Licensed under the MIT License.  
 See the full license at:  
