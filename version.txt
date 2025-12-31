@@ -1,0 +1,3 @@
+version: 1.11.3
+releaseDate: 2025-12-31
+notes: Minor bug fixes.
