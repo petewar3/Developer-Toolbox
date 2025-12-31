@@ -683,7 +683,7 @@ if hookfunction and typeof(hookfunction) == "function" then
         if clientAntiKick and self == player and key:lower() == "kick" then
             return function()
                 SendNotification("Blocked Kick Attempt (__index)")
-                error("Expected ':' not '.' calling member function Kick", 2)
+                --error("Expected ':' not '.' calling member function Kick", 2)
             end
         end
         
