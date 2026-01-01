@@ -1,4 +1,4 @@
-return function(func)
+function(func)
     if typeof(func) ~= "function" then
         return nil
     end
