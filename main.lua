@@ -43,26 +43,32 @@ else
     })
 end
 
-local interactiveNotificationYielding = false
+local yielding = false
 local errorYielded = false
+local loadstringEvent = Instance.new("BindableEvent")
 
 if getgenv().Toolbox.ErrorScheduled == nil then
     getgenv().Toolbox.ErrorScheduled = true
     
-    task.delay(8, function()
-        while interactiveNotificationYielding do
-            yielded = true
+    loadstringEvent.Event:Connect(function()
+        if loadstringEvent then
+            loadstringEvent:Destroy()
+        end
+        
+        getgenv().Toolbox.ErrorScheduled = nil
+        
+        while yielding do
+            errorYielded = true
             task.wait()
             break
         end
         
         if errorYielded then
-            task.wait(8)
+            task.wait(4)
         end
         
         if getgenv().Toolbox.Executing then
             getgenv().Toolbox.Executing = nil
-            getgenv().Toolbox.ErrorScheduled = nil
             
             if cancelToolboxLoading then
                 return
@@ -88,34 +94,138 @@ if getgenv().Toolbox.ErrorScheduled == nil then
                 Icon = "rbxassetid://108052242103510",
                 Duration = 4.5
             })
-        else
-            getgenv().Toolbox.ErrorScheduled = nil
         end
     end)
 end
 
 --// Services & Setup
-clonefunction = clonefunction or function(func)
-    if typeof(func) ~= "function" then
-        return nil
+local function IncompatibleExploit()
+    local errorSound = Instance.new("Sound")
+    errorSound.Name = "PetewareErrorNotification"
+    errorSound.SoundId = "rbxassetid://9066167010"
+    errorSound.Volume = 1
+    errorSound.Archivable = false
+    errorSound.Parent = soundService
+        
+    pcall(function() 
+        errorSound:Play()
+        errorSound.Ended:Once(function()
+            errorSound:Destroy()
+        end)
+    end)
+
+    starterGui:SetCore("SendNotification", {
+        Title = "Toolbox",
+        Text = "Incompatible Exploit. Your exploit does not support the toolbox (missing " .. tostring(v) .. ")",
+        Icon = bell_ring,
+        Duration = duration or 3.5
+    })
+end
+
+if not loadstring or typeof(loadstring) ~= "function" then
+    return IncompatibleExploit()
+end
+
+local toolboxDirectory = "https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/"
+local extraFunctionsDirectory = toolboxDirectory .. "ExtraFunctions/"
+local backupsDirectory = toolboxDirectory .. "Backups/"
+local assetsDirectory = toolboxDirectory .. "Assets/"
+local audiosDirectory = assetsDirectory .. "Audios/"
+local imagesDirectory = assetsDirectory .. "Images/"
+
+local extraFunctions = {
+    "clonefunction"
+}
+
+local backups = {
+    "FPS-Booster-Backup",
+    "Ketamine-Backup",
+    "Wizard-Backup"
+}
+
+local audios = {
+    "bell-ring"
+}
+
+local images = {
+    "bell-ring"
+}
+
+local loadedFunctions = {}
+local loadedBackups = {}
+local loadedAudios = {}
+local loadedImages = {}
+
+yielding = true
+loadstringEvent:Fire()
+
+for _, func in ipairs(extraFunctions) do
+    local success, loadedFunction = pcall(function()
+        return loadstring(game:HttpGet(extraFunctionsDirectory .. func .. ".lua"))()
+    end)
+    
+    if not success or not loadedFunction then
+        yielding = false
+        return
     end
     
-    return function(...)
-        return func(...)
-    end
+    loadedFunctions[func] = loadedFunction
 end
+
+for _, backup in ipairs(backups) do
+    local success, loadedBackup = pcall(function()
+        return loadstring(game:HttpGet(backupsDirectory .. backup .. ".lua"))
+    end)
+    
+    if not success or not loadedBackup then
+        yielding = false
+        return
+    end
+    
+    loadedBackups[backup:gsub("-Backup", "")] = loadedBackup
+end
+
+for _, audio in ipairs(audios) do
+    local success, loadedAudio = pcall(function()
+        return game:HttpGet(audiosDirectory .. audio .. ".mp3")
+    end)
+    
+    if not success or not loadedAudio then
+        yielding = false
+        return
+    end
+    
+    loadedAudios[audio] = loadedAudio
+end
+
+for _, image in ipairs(images) do
+    local success, loadedImage = pcall(function()
+        return game:HttpGet(imagesDirectory .. image .. ".png")
+    end)
+    
+    if not success or not loadedImage then
+        yielding = false
+        return
+    end
+    
+    loadedImages[image] = loadedImage
+end
+
+yielding = false
+
+clonefunction = clonefunction or loadedFunctions.clonefunction()
 
 newcclosure = newcclosure or function(func)
     return func
 end
 
+loadstring = loadstring and clonefunction(loadstring)
 customasset = (getcustomasset or getsynasset) and clonefunction(getcustomasset or getsynasset)
 makefolder = makefolder and clonefunction(makefolder)
 isfolder = isfolder and clonefunction(isfolder)
 writefile = writefile and clonefunction(writefile)
 isfile = isfile and clonefunction(isfile)
 readfile = readfile and clonefunction(readfile)
-loadstring = loadstring and clonefunction(loadstring)
 httprequest = ((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request) and clonefunction((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request)
 queueteleport = ((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)) and clonefunction((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport))
 setclip = (setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set)) and clonefunction(setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set))
@@ -145,30 +255,9 @@ local requiredFunctions = {
     loadstring
 }
 
-for _, v in ipairs(requiredFunctions) do
-    if not v or typeof(v) ~= "function" then
-        local errorSound = Instance.new("Sound")
-        errorSound.Name = "PetewareErrorNotification"
-        errorSound.SoundId = "rbxassetid://9066167010"
-        errorSound.Volume = 1
-        errorSound.Archivable = false
-        errorSound.Parent = soundService
-        
-        pcall(function() 
-            errorSound:Play()
-            errorSound.Ended:Once(function()
-                errorSound:Destroy()
-            end)
-        end)
-
-        starterGui:SetCore("SendNotification", {
-            Title = "Toolbox",
-            Text = "Incompatible Exploit. Your exploit does not support the toolbox (missing " .. tostring(v) .. ")",
-            Icon = bell_ring,
-            Duration = duration or 3.5
-        })
-
-        return
+for _, func in ipairs(requiredFunctions) do
+    if not func or typeof(func) ~= "function" then
+        return IncompatibleExploit()
     end
 end
 
@@ -273,11 +362,11 @@ if not isfolder(imagesFolder) then
 end
 
 if not isfile(bell_ring_png) then
-    writefile(bell_ring_png, game:HttpGet("https://github.com/petewar3/Developer-Toolbox/raw/refs/heads/main/Assets/Images/bell-ring.png"))
+    writefile(bell_ring_png, loadedImages["bell-ring"])
 end
 
 if not isfile(bell_ring_mp3) then
-    writefile(bell_ring_mp3, game:HttpGet("https://github.com/petewar3/Developer-Toolbox/raw/refs/heads/main/Assets/Audios/bell-ring.mp3"))
+    writefile(bell_ring_mp3, loadedImages["bell-ring"])
 end
 
 --// Notification Sender
@@ -342,7 +431,7 @@ function SendInteractiveNotification(options, yield)
             responseEvent:Destroy()
         end
         
-        interactiveNotificationYielding = false
+        yielding = false
     end
 
     starterGui:SetCore("SendNotification", {
@@ -366,7 +455,7 @@ function SendInteractiveNotification(options, yield)
     end)
     
     if yield then
-        interactiveNotificationYielding = true
+        yielding = true
         local response = responseEvent.Event:Wait()
         return response
     end
@@ -745,11 +834,11 @@ local function FetchExecutorInfo()
 end
 
 --// Main UI
-local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/Wizard-Backup.lua"))()
+local Library = loadedBackups.Wizard()
 
-local PetewareToolbox = Library:NewWindow("Dev Toolbox | Peteware")
+local DeveloperToolbox = Library:NewWindow("Dev Toolbox | Peteware")
 
-local Tools = PetewareToolbox:NewSection("Tools")
+local Tools = DeveloperToolbox:NewSection("Tools")
 
 Tools:CreateButton("Infinite Yield", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
@@ -775,11 +864,9 @@ Tools:CreateButton("Hydroxide", function()
     WebImport("ui/main")
 end)
 
-Tools:CreateButton("Ketamine", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/Ketamine-Backup.lua"))()
-end)
+Tools:CreateButton("Ketamine", loadedBackups.Ketamine)
 
-local InstanceScanner = PetewareToolbox:NewSection("Instance Scanner")
+local InstanceScanner = DeveloperToolbox:NewSection("Instance Scanner")
 
 InstanceScanner:CreateButton("Fetch All Available Classes", function()
     OpenDevConsole()
@@ -827,7 +914,7 @@ InstanceScanner:CreateTextbox("Scan by Class", function(className)
 ]], finalTime))
 end)
 
-local Addons = PetewareToolbox:NewSection("Addons")
+local Addons = DeveloperToolbox:NewSection("Addons")
 
 Addons:CreateTextbox("Input Script Name", function(text)
     addonName = text:gsub("%.lua$", "") .. ".lua"
@@ -922,7 +1009,7 @@ Addons:CreateButton("Delete Selected Addon", function()
     })
 end)
 
-local Other = PetewareToolbox:NewSection("Other")
+local Other = DeveloperToolbox:NewSection("Other")
 
 Other:CreateToggle("Instant Prompts", function(value)
     instantProximityPrompts = value
@@ -1000,7 +1087,7 @@ Other:CreateButton("FPS Booster", function()
         ["Low Rendering"] = true, -- Lower Rendering
         ["Low Quality Parts"] = true -- Lower quality parts
         }
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/FPS-Booster-Backup.lua"))()
+    loadedBackups["FPS-Booster"]()
 end)
 
 Other:CreateButton("Executor Info", function()
