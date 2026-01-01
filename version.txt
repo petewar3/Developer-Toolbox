@@ -1,3 +1,3 @@
-version: 1.11.5
+version: 1.12.0
 releaseDate: 2025-12-31
-notes: Bug fixes for toggles in the other section.
+notes: Improved error scheduled to be more accurate and consistent, improved clonefunction
