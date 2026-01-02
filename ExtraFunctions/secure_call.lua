@@ -20,7 +20,7 @@ end)
 
 local setidentity = setidentity or setthreadidentity or set_thread_identity or setthreadcontext or set_thread_context or (syn and syn.set_thread_identity)
 
-return function secure_call(func, ...)
+return function(func, ...)
     local func_type = typeof(func)
     
     assert(func_type == "function", string.format(
