@@ -20,7 +20,7 @@ end)
 
 local setidentity = setidentity or setthreadidentity or set_thread_identity or setthreadcontext or set_thread_context or (syn and syn.set_thread_identity)
 
-local function secure_call(func, ...)
+return function secure_call(func, ...)
     local func_type = typeof(func)
     
     assert(func_type == "function", string.format(
@@ -43,6 +43,7 @@ local function secure_call(func, ...)
     end)(...)
 end
 
+--[[ just some usage here
 local old; old = hookmetamethod(game, "__index", function(self, ...)
     local calling = getcallingscript(old)
     local callingscript = calling and cloneref(calling) or nil
@@ -56,4 +57,4 @@ local old; old = hookmetamethod(game, "__index", function(self, ...)
     end
     
     return old(self, ...) -- core script or executor
-end)
+end)]]
