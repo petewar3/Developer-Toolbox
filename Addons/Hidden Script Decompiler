@@ -38,7 +38,6 @@ for _, instance in ipairs(getnilinstances()) do
         local src = _decompile(instance)
         if src and (not use_search_keyword or src:find(search_keyword)) then
             warn("HIDDEN GAME SCRIPT FOUND:", instance.Name)
-            setclipboard(src)
             writefile(scripts[instance.ClassName] .. "/" .. instance.Name, src)
         end
     end
