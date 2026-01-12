@@ -1,4 +1,4 @@
--- hidden script decompiler: decompiles all game scripts that attempted to hide themself
+-- hidden script decompiler: decompiles all game scripts that attempted to hide themself via self destruction
 game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
 if not decompile or not getscriptbytecode or not getnilinstances then
     return warn("unsupported exploit.")
