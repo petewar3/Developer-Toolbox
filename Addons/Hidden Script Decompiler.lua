@@ -6,7 +6,15 @@ end
 
 local _decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
     if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and typeof(getscriptbytecode(scr)) == "string" and #getscriptbytecode(scr) ~= 0 then
-        return decompile(scr)
+        local _, src = pcall(function()
+            return decompile(scr)
+        end)
+
+        if src then
+            return src
+        end
+
+        return nil
     end
 end
 
