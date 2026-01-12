@@ -46,13 +46,14 @@ for _, actor in ipairs(getactors()) do
     for _, scr in ipairs(actor:GetDescendants()) do
         local src = _decompile(scr)
         if src and (not use_search_keyword or src:find(search_keyword)) then
-            amount = amount + 1
             warn("HIDDEN GAME SCRIPT FOUND:", scr.Name)
             if amount == 0 then
                 writefile(scripts[scr.ClassName] .. "/" .. scr.Name, src)
             else
                 writefile(scripts[scr.ClassName] .. "/" .. scr.Name, src)
             end
+            
+            amount = amount + 1
         end
     end
 end
