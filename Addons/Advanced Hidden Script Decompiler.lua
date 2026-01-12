@@ -1,0 +1,56 @@
+-- advanced hidden script decompiler: decompiles all game scripts that attempted to hide themself via actors
+game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
+if not decompile or not getscriptbytecode or not getactors then
+    return warn("unsupported exploit.")
+end
+
+local _decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
+    if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and typeof(getscriptbytecode(scr)) == "string" and #getscriptbytecode(scr) ~= 0 then
+        return decompile(scr)
+    end
+end
+
+local main_folder = "HIDDEN_SCRIPTS_DECOMPILED"
+
+local scripts = {
+    ["LocalScript"] = main_folder .. "/LocalScript",
+    ["ModuleScript"] = main_folder .. "/ModuleScript",
+    ["Script"] = main_folder .. "/Script"
+}
+
+if not isfolder(main_folder) then
+    makefolder(main_folder)
+end
+
+for _, script in pairs(scripts) do
+    if not isfolder(script) then
+        makefolder(script)
+    end
+end
+
+-- keyword configuration to check for scripts with keywords
+local use_search_keyword = false
+local search_keyword = "getfenv"
+
+for _, actor in ipairs(getactors()) do
+    local script
+    for _, scr in ipairs(actor:GetDescendants()) do
+        if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and typeof(getscriptbytecode(scr)) == "string" and #getscriptbytecode(scr) ~= 0 then
+            script = scr
+        end
+    end
+    
+    if script then
+        local _, src = pcall(function()
+            return decompile(script)
+        end)
+    end
+    
+    if src and (not use_search_keyword or src:find(search_keyword)) then
+        warn("HIDDEN GAME SCRIPT FOUND:", script.Name)
+        writefile(scripts[script.ClassName] .. "/" .. script.Name, src)
+    end
+end
+
+warn("Finished decompiling hidden game scripts.")
+warn("Hidden game scripts decompiled and saved to " .. main_folder)
