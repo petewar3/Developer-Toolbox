@@ -6,7 +6,15 @@ end
 
 local _decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
     if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and typeof(getscriptbytecode(scr)) == "string" and #getscriptbytecode(scr) ~= 0 then
-        return decompile(scr)
+        local _, src = pcall(function()
+            return decompile(scr)
+        end)
+
+        if src then
+            return src
+        end
+
+        return nil
     end
 end
 
@@ -32,23 +40,20 @@ end
 local use_search_keyword = false
 local search_keyword = "getfenv"
 
+local amount = 0
+
 for _, actor in ipairs(getactors()) do
-    local script
     for _, scr in ipairs(actor:GetDescendants()) do
-        if (scr:IsA("LocalScript") or scr:IsA("ModuleScript") or (scr:IsA("Script") and scr.RunContext == Enum.RunContext.Client)) and typeof(getscriptbytecode(scr)) == "string" and #getscriptbytecode(scr) ~= 0 then
-            script = scr
+        local src = _decompile(scr)
+        if src and (not use_search_keyword or src:find(search_keyword)) then
+            amount = amount + 1
+            warn("HIDDEN GAME SCRIPT FOUND:", scr.Name)
+            if amount == 0 then
+                writefile(scripts[scr.ClassName] .. "/" .. scr.Name, src)
+            else
+                writefile(scripts[scr.ClassName] .. "/" .. scr.Name, src)
+            end
         end
-    end
-    
-    if script then
-        local _, src = pcall(function()
-            return decompile(script)
-        end)
-    end
-    
-    if src and (not use_search_keyword or src:find(search_keyword)) then
-        warn("HIDDEN GAME SCRIPT FOUND:", script.Name)
-        writefile(scripts[script.ClassName] .. "/" .. script.Name, src)
     end
 end
 
