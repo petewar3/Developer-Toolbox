@@ -1,7 +1,15 @@
 -- advanced hidden script decompiler: decompiles all game scripts that attempted to hide themself via actors
+local debugging = true -- disable when using unless you are certain the game doesnt detect for warns with message out connection
+
+local _warn = function(...)
+    if debugging then
+        warn(...)
+    end
+end
+
 game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
 if not decompile or not getscriptbytecode or not getactors then
-    return warn("unsupported exploit.")
+    return _warn("unsupported exploit.")
 end
 
 local _decompile = function(scr) -- just a function for better checks + prevents scanning executor scripts
@@ -41,14 +49,14 @@ local use_search_keyword = false
 local search_keyword = "getfenv"
 
 for _, actor in ipairs(getactors()) do
-    for _, scr in ipairs(actor:GetDescendants()) do
-        local src = _decompile(scr)
+    for _, instance in ipairs(actor:GetDescendants()) do
+        local src = _decompile(instance)
         if src and (not use_search_keyword or src:find(search_keyword)) then
-            warn("HIDDEN GAME SCRIPT FOUND:", scr.Name)
+            _warn("HIDDEN GAME SCRIPT FOUND:", scr.Name)
             writefile(scripts[scr.ClassName] .. "/" .. scr.Name, src)
         end
     end
 end
 
-warn("Finished decompiling hidden game scripts.")
-warn("Hidden game scripts decompiled and saved to " .. main_folder)
+_warn("Finished decompiling hidden game scripts.")
+_warn("Hidden game scripts decompiled and saved to " .. main_folder)
