@@ -27,7 +27,7 @@ return function(func, ...)
         "bad argument #1 to 'secure_call' (function expected, got %s)", func_type
     ))
 
-    local calling_script = getcallingscript(func)
+    local calling_script = getcallingscript()
 
     local _, script_fenv = xpcall(function()
         return getsenv(calling_script)
