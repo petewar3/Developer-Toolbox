@@ -142,7 +142,8 @@ local images_directory = assets_directory .. "Images/"
 local extra_functions = {
     "clonefunction",
     "hookmetamethod",
-    "checkcaller"
+    "checkcaller",
+    "getcallingscript"
 }
 
 local backups = {
@@ -224,6 +225,7 @@ yielding = false
 local clonefunction = clonefunction or loaded_functions.clonefunction
 local hookmetamethod = hookmetamethod and clonefunction(hookmetamethod) or loaded_functions.hookmetamethod
 local checkcaller = checkcaller and clonefunction(checkcaller) or loaded_functions.checkcaller
+local getcallingscript = getcallingscript and clonefunction(getcallingscript) or loaded_functions.getcallingscript
 
 local newcclosure = newcclosure and clonefunction(newcclosure) or function(func)
     return func
@@ -511,7 +513,7 @@ else
     SendNotification(string.format("Your executor is %.0f%% compatible. Some toolbox features may not be compatible with this executor.", compatibility_percentage), 4)
 end
 
-if not global_env.clonefunction or not global_env.checkcaller or (not global_env.hookmetamethod and hookmetamethod) then
+if not global_env.clonefunction or not global_env.checkcaller or not global_env.getcallingscript or (not global_env.hookmetamethod and hookmetamethod) then
     SendInteractiveNotification({
         Text = "Some patchable executor functions are missing. Would you like to patch them for better script compatibility across other scripts?",
         Button1 = "Yes",
@@ -521,17 +523,22 @@ if not global_env.clonefunction or not global_env.checkcaller or (not global_env
             if value == "Yes" then
                 if not global_env.clonefunction then
                     global_env.clonefunction = clonefunction
-                    SendNotification("Patched: clonefunction")
+                    SendNotification("Patched Function: clonefunction")
                 end
                 
                 if not global_env.checkcaller then
                     global_env.checkcaller = clonefunction(checkcaller)
-                    SendNotification("Patched: checkcaller")
+                    SendNotification("Patched Function: checkcaller")
                 end
                 
                 if not global_env.hookmetamethod and hookmetamethod then
                     global_env.hookmetamethod = clonefunction(hookmetamethod)
-                    SendNotification("Patched: hookmetamethod")
+                    SendNotification("Patched Function: hookmetamethod")
+                end
+                
+                if not global_env.getcallingscript then
+                    global_env.getcallingscript = clonefunction(getcallingscript)
+                    SendNotification("Patched Function: getcallingscript")
                 end
             end
         end
@@ -1180,7 +1187,7 @@ end)
 global_env.Toolbox.Executing = nil
 
 --[[// Credits
-Infinite Yield: Dex Explorer, Remote Spy
+Infinite Yield: Server Hop, Dex Explorer, Remote Spy, Client-Anti-Kick
 Infinite Yield Discord Server: https://discord.gg/78ZuWSq
 Hosvile: Hydroxide 
 Hosvile Github: https://github.com/hosvile/
