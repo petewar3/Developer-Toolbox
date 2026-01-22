@@ -170,7 +170,7 @@ loadstring_event:Fire()
 
 for _, func in ipairs(extra_functions) do
     local success, loaded_function = pcall(function()
-        return loadstring(game:HttpGet(extra_functions_directory .. func .. ".lua"))()()
+        return loadstring(game:HttpGet(extra_functions_directory .. func .. ".lua"))()
     end)
     
     if not success or not loaded_function then
@@ -250,12 +250,12 @@ local newcclosure = clonefunction(newcclosure)
 local firesignal = firesignal and clonefunction(firesignal)
 local getnamecallmethod = getnamecallmethod and clonefunction(getnamecallmethod)
 
-local player = clonref(game:GetService("Players")).LocalPlayer
+local player = cloneref(game:GetService("Players")).LocalPlayer
 local core_gui = cloneref(game:GetService("CoreGui"))
-local starter_gui = cloneref(game:GetService("starter_gui"))
-local teleport_service = cloneref(game:GetService("teleport_service"))
-local http_service = cloneref(game:GetService("http_service"))
-local user_input_service = cloneref(game:GetService("user_input_service"))
+local starter_gui = cloneref(game:GetService("StarterGui"))
+local teleport_service = cloneref(game:GetService("TeleportService"))
+local http_service = cloneref(game:GetService("HttpService"))
+local user_input_service = cloneref(game:GetService("UserInputService"))
 local sound_service = cloneref(game:GetService("SoundService"))
 
 --// Executor Compatibility Check
@@ -275,7 +275,7 @@ for _, func in ipairs(required_functions) do
 end
 
 --// UI Cleanup
-local wizard_library = cloneref(core_gui:FindFirstChild("WizardLibrary"))
+local wizard_library = core_gui:FindFirstChild("WizardLibrary")
 if wizard_library then
     wizard_library:Destroy()
 end
