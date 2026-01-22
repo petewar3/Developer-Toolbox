@@ -366,7 +366,7 @@ if not isfile(bell_ring_png) then
 end
 
 if not isfile(bell_ring_mp3) then
-    writefile(bell_ring_mp3, loadedImages["bell-ring"])
+    writefile(bell_ring_mp3, loadedAudios["bell-ring"])
 end
 
 --// Notification Sender
