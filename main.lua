@@ -513,7 +513,7 @@ end
 
 if not global_env.clonefunction or not global_env.checkcaller or (not global_env.hookmetamethod and hookmetamethod) then
     SendInteractiveNotification({
-        Text = "Some executor functions are missing. Would you like to patch them for better script compatibility across other scripts?",
+        Text = "Some patchable executor functions are missing. Would you like to patch them for better script compatibility across other scripts?",
         Button1 = "Yes",
         Button2 = "No",
         Duration = 10,
