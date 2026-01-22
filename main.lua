@@ -1,7 +1,7 @@
 --[[
 PLEASE READ - IMPORTANT
 
-© 2025 Peteware
+(C) 2026 Peteware
 This project is part of Developer-Toolbox, an open-sourced debugging tool for roblox.
 
 Licensed under the MIT License.  
@@ -25,17 +25,23 @@ if not game:IsLoaded() then
 end
 
 --// Executing Check
-if getgenv().Toolbox and getgenv().Toolbox.Executing then
-    return game:GetService("StarterGui"):SetCore("SendNotification", {
+local global_env = getgenv() or shared
+
+local cloneref = cloneref and clonefunction(cloneref) or function(...)
+    return ...
+end
+
+if global_env.Toolbox and global_env.Toolbox.Executing then
+    return cloneref(game:GetService("StarterGui")):SetCore("SendNotification", {
         Title = "Toolbox",
         Text = "Already Loading. Please Wait!",
         Icon = "rbxassetid://108052242103510",
         Duration = 3.5
     })
 else
-    getgenv().Toolbox = {}
-    getgenv().Toolbox.Executing = true
-    game:GetService("StarterGui"):SetCore("SendNotification", {
+    global_env.Toolbox = {}
+    global_env.Toolbox.Executing = true
+    cloneref(game:GetService("StarterGui")):SetCore("SendNotification", {
         Title = "Toolbox",
         Text = "Developers Toolbox Loading! Please wait...",
         Icon = "rbxassetid://108052242103510",
@@ -44,51 +50,51 @@ else
 end
 
 local yielding = false
-local errorYielded = false
-local loadstringEvent = Instance.new("BindableEvent")
+local error_yielded = false
+local loadstring_event = Instance.new("BindableEvent")
 
-if getgenv().Toolbox.ErrorScheduled == nil then
-    getgenv().Toolbox.ErrorScheduled = true
+if global_env.Toolbox.ErrorScheduled == nil then
+    global_env.Toolbox.ErrorScheduled = true
     
-    loadstringEvent.Event:Connect(function()
-        if loadstringEvent then
-            loadstringEvent:Destroy()
+    loadstring_event.Event:Connect(function()
+        if loadstring_event then
+            loadstring_event:Destroy()
         end
         
-        getgenv().Toolbox.ErrorScheduled = nil
+        global_env.Toolbox.ErrorScheduled = nil
         
         while yielding do
-            errorYielded = true
+            error_yielded = true
             task.wait()
             break
         end
         
-        if errorYielded then
+        if error_yielded then
             task.wait(4)
         end
         
-        if getgenv().Toolbox.Executing then
-            getgenv().Toolbox.Executing = nil
+        if global_env.Toolbox.Executing then
+            global_env.Toolbox.Executing = nil
             
-            if cancelToolboxLoading then
+            if cancel_toolbox_loading then
                 return
             end
             
-            local errorSound = Instance.new("Sound")
-            errorSound.Name = "PetewareErrorNotification"
-            errorSound.SoundId = "rbxassetid://9066167010"
-            errorSound.Volume = 1
-            errorSound.Archivable = false
-            errorSound.Parent = game:GetService("SoundService")
+            local error_sound = Instance.new("Sound")
+            error_sound.Name = "PetewareErrorNotification"
+            error_sound.SoundId = "rbxassetid://9066167010"
+            error_sound.Volume = 1
+            error_sound.Archivable = false
+            error_sound.Parent = cloneref(game:GetService("SoundService"))
         
             pcall(function() 
-                errorSound:Play()
-                errorSound.Ended:Once(function()
-                    errorSound:Destroy()
+                error_sound:Play()
+                error_sound.Ended:Once(function()
+                    error_sound:Destroy()
                 end)
             end)
         
-            game:GetService("StarterGui"):SetCore("SendNotification", {
+            cloneref(game:GetService("StarterGui")):SetCore("SendNotification", {
                 Title = "Toolbox",
                 Text = "An error has occured while loading the toolbox, Please try and rexecute. If this problem persists please report this to 584h with console logs.",
                 Icon = "rbxassetid://108052242103510",
@@ -100,21 +106,21 @@ end
 
 --// Services & Setup
 local function IncompatibleExploit()
-    local errorSound = Instance.new("Sound")
-    errorSound.Name = "PetewareErrorNotification"
-    errorSound.SoundId = "rbxassetid://9066167010"
-    errorSound.Volume = 1
-    errorSound.Archivable = false
-    errorSound.Parent = soundService
+    local error_sound = Instance.new("Sound")
+    error_sound.Name = "PetewareErrorNotification"
+    error_sound.SoundId = "rbxassetid://9066167010"
+    error_sound.Volume = 1
+    error_sound.Archivable = false
+    error_sound.Parent = sound_service
         
     pcall(function() 
-        errorSound:Play()
-        errorSound.Ended:Once(function()
-            errorSound:Destroy()
+        error_sound:Play()
+        error_sound.Ended:Once(function()
+            error_sound:Destroy()
         end)
     end)
 
-    starterGui:SetCore("SendNotification", {
+    cloneref(game:GetService("StarterGui")):SetCore("SendNotification", {
         Title = "Toolbox",
         Text = "Incompatible Exploit. Your exploit does not support the toolbox (missing " .. tostring(v) .. ")",
         Icon = bell_ring,
@@ -126,15 +132,17 @@ if not loadstring or typeof(loadstring) ~= "function" then
     return IncompatibleExploit()
 end
 
-local toolboxDirectory = "https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/"
-local extraFunctionsDirectory = toolboxDirectory .. "ExtraFunctions/"
-local backupsDirectory = toolboxDirectory .. "Backups/"
-local assetsDirectory = toolboxDirectory .. "Assets/"
-local audiosDirectory = assetsDirectory .. "Audios/"
-local imagesDirectory = assetsDirectory .. "Images/"
+local toolbox_directory = "https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/"
+local extra_functions_directory = toolbox_directory .. "ExtraFunctions/"
+local backups_directory = toolbox_directory .. "Backups/"
+local assets_directory = toolbox_directory .. "Assets/"
+local audios_directory = assets_directory .. "Audios/"
+local images_directory = assets_directory .. "Images/"
 
-local extraFunctions = {
-    "clonefunction"
+local extra_functions = {
+    "clonefunction",
+    "hookmetamethod",
+    "checkcaller"
 }
 
 local backups = {
@@ -151,102 +159,105 @@ local images = {
     "bell-ring"
 }
 
-local loadedFunctions = {}
-local loadedBackups = {}
-local loadedAudios = {}
-local loadedImages = {}
+local loaded_functions = {}
+local loaded_backups = {}
+local loaded_audios = {}
+local loaded_images = {}
 
 yielding = true
-loadstringEvent:Fire()
+loadstring_event:Fire()
 
-for _, func in ipairs(extraFunctions) do
-    local success, loadedFunction = pcall(function()
-        return loadstring(game:HttpGet(extraFunctionsDirectory .. func .. ".lua"))()
+for _, func in ipairs(extra_functions) do
+    local success, loaded_function = pcall(function()
+        return loadstring(game:HttpGet(extra_functions_directory .. func .. ".lua"))()()
     end)
     
-    if not success or not loadedFunction then
+    if not success or not loaded_function then
         yielding = false
         return
     end
     
-    loadedFunctions[func] = loadedFunction
+    loaded_functions[func] = loaded_function
 end
 
 for _, backup in ipairs(backups) do
-    local success, loadedBackup = pcall(function()
-        return loadstring(game:HttpGet(backupsDirectory .. backup .. ".lua"))
+    local success, loaded_backup = pcall(function()
+        return loadstring(game:HttpGet(backups_directory .. backup .. ".lua"))
     end)
     
-    if not success or not loadedBackup then
+    if not success or not loaded_backup then
         yielding = false
         return
     end
     
-    loadedBackups[backup:gsub("-Backup", "")] = loadedBackup
+    loaded_backups[backup:gsub("-Backup", "")] = loaded_backup
 end
 
 for _, audio in ipairs(audios) do
-    local success, loadedAudio = pcall(function()
-        return game:HttpGet(audiosDirectory .. audio .. ".mp3")
+    local success, loaded_audio = pcall(function()
+        return game:HttpGet(audios_directory .. audio .. ".mp3")
     end)
     
-    if not success or not loadedAudio then
+    if not success or not loaded_audio then
         yielding = false
         return
     end
     
-    loadedAudios[audio] = loadedAudio
+    loaded_audios[audio] = loaded_audio
 end
 
 for _, image in ipairs(images) do
-    local success, loadedImage = pcall(function()
-        return game:HttpGet(imagesDirectory .. image .. ".png")
+    local success, loaded_image = pcall(function()
+        return game:HttpGet(images_directory .. image .. ".png")
     end)
     
-    if not success or not loadedImage then
+    if not success or not loaded_image then
         yielding = false
         return
     end
     
-    loadedImages[image] = loadedImage
+    loaded_images[image] = loaded_image
 end
 
 yielding = false
 
-clonefunction = clonefunction or loadedFunctions.clonefunction()
+local clonefunction = clonefunction or loaded_functions.clonefunction
+local hookmetamethod = hookmetamethod and clonefunction(hookmetamethod) or loaded_functions.hookmetamethod
+local checkcaller = checkcaller and clonefunction(checkcaller) or loaded_functions.checkcaller
 
-newcclosure = newcclosure or function(func)
+local newcclosure = newcclosure and clonefunction(newcclosure) or function(func)
     return func
 end
 
-loadstring = loadstring and clonefunction(loadstring)
-customasset = (getcustomasset or getsynasset) and clonefunction(getcustomasset or getsynasset)
-makefolder = makefolder and clonefunction(makefolder)
-isfolder = isfolder and clonefunction(isfolder)
-writefile = writefile and clonefunction(writefile)
-isfile = isfile and clonefunction(isfile)
-readfile = readfile and clonefunction(readfile)
-httprequest = ((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request) and clonefunction((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request)
-queueteleport = ((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)) and clonefunction((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport))
-setclip = (setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set)) and clonefunction(setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set))
-fireproximityprompt = fireproximityprompt and clonefunction(fireproximityprompt)
-hookfunction = hookfunction and clonefunction(hookfunction)
-identifyexecutor = identifyexecutor and clonefunction(identifyexecutor)
-getthreadcontext = getthreadcontext and clonefunction(getthreadcontext)
-cloneref = cloneref and clonefunction(cloneref)
-newcclosure = clonefunction(newcclosure)
-firesignal = firesignal and clonefunction(firesignal)
+local loadstring = loadstring and clonefunction(loadstring)
+local customasset = (getcustomasset or getsynasset) and clonefunction(getcustomasset or getsynasset)
+local makefolder = makefolder and clonefunction(makefolder)
+local isfolder = isfolder and clonefunction(isfolder)
+local writefile = writefile and clonefunction(writefile)
+local isfile = isfile and clonefunction(isfile)
+local readfile = readfile and clonefunction(readfile)
+local delfile = delfile and clonefunction(delfile)
+local httprequest = ((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request) and clonefunction((syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request)
+local queueteleport = ((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)) and clonefunction((syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport))
+local setclip = (setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set)) and clonefunction(setclipboard or (syn and syn.setclipboard) or (Clipboard and Clipboard.set))
+local fireproximityprompt = fireproximityprompt and clonefunction(fireproximityprompt)
+local hookfunction = hookfunction and clonefunction(hookfunction)
+local identifyexecutor = identifyexecutor and clonefunction(identifyexecutor)
+local getthreadcontext = getthreadcontext and clonefunction(getthreadcontext)
+local newcclosure = clonefunction(newcclosure)
+local firesignal = firesignal and clonefunction(firesignal)
+local getnamecallmethod = getnamecallmethod and clonefunction(getnamecallmethod)
 
-local player = game:GetService("Players").LocalPlayer
-local coreGui = game:GetService("CoreGui")
-local starterGui = game:GetService("StarterGui")
-local teleportService = game:GetService("TeleportService")
-local httpService = game:GetService("HttpService")
-local userInputService = game:GetService("UserInputService")
-local soundService = game:GetService("SoundService")
+local player = clonref(game:GetService("Players")).LocalPlayer
+local core_gui = cloneref(game:GetService("CoreGui"))
+local starter_gui = cloneref(game:GetService("starter_gui"))
+local teleport_service = cloneref(game:GetService("teleport_service"))
+local http_service = cloneref(game:GetService("http_service"))
+local user_input_service = cloneref(game:GetService("user_input_service"))
+local sound_service = cloneref(game:GetService("SoundService"))
 
 --// Executor Compatibility Check
-local requiredFunctions = {
+local required_functions = {
     makefolder,
     isfolder,
     writefile,
@@ -255,16 +266,16 @@ local requiredFunctions = {
     loadstring
 }
 
-for _, func in ipairs(requiredFunctions) do
+for _, func in ipairs(required_functions) do
     if not func or typeof(func) ~= "function" then
         return IncompatibleExploit()
     end
 end
 
 --// UI Cleanup
-local wizardLibary = coreGui:FindFirstChild("WizardLibrary")
-if wizardLibary then
-    wizardLibary:Destroy()
+local wizard_library = cloneref(core_gui:FindFirstChild("WizardLibrary"))
+if wizard_library then
+    wizard_library:Destroy()
 end
 
 task.wait(1)
@@ -272,24 +283,18 @@ task.wait(1)
 --// Detection Handler
 local detected = false -- change this to true if you want the toolbox to be detected by in-game anti-cheat. useful when testing anti-cheats
 
-local namecall
-xpcall(function()
-    game:_()
-end, function()
-    namecall = debug.info(2, "f")
-end)
-
 local function SendNotification() end
 local function SendInteractiveNotification() end
 
 local function HandleDetections(boolean)
-    local hookRequiredFunctions = {
-        "hookfunction",
+    local hook_required_functions = {
+        "hookmetamethod",
+        "checkcaller",
         "cloneref",
         "getnamecallmethod"
     }
     
-    for _, func in ipairs(hookRequiredFunctions) do
+    for _, func in ipairs(hook_required_functions) do
         if not func then
             Notify("Incompatible Exploit. Your exploit does not support in-game anti-cheat detection handling (missing " .. tostring(v) .. ")")
             SendInteractiveNotification({
@@ -314,13 +319,13 @@ local function HandleDetections(boolean)
         }, true)
     end
     
-    local contentProvider = cloneref(game:GetService("ContentProvider"))
+    local content_provider = cloneref(game:GetService("ContentProvider"))
     
-    local old; old = hookfunction(namecall, newcclosure(function(self, ...)
+    local old; old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
         if not checkcaller() then
             local method = getnamecallmethod()
         
-            if self == contentProvider and method == "GetAssetFetchStatus" then
+            if self == content_provider and method == "GetAssetFetchStatus" then
                 return Enum.AssetFetchStatus.None
             end
         end
@@ -332,51 +337,51 @@ local function HandleDetections(boolean)
 end
 
 --// Data Handler
-local mainFolder = "Peteware"
-local toolboxFolder = mainFolder .. "/Toolbox"
-local assetsFolder = toolboxFolder .. "/Assets"
-local audiosFolder = assetsFolder .. "/Audios"
-local imagesFolder = assetsFolder .. "/Images"
+local main_folder = "Peteware"
+local toolbox_folder = main_folder .. "/Toolbox"
+local assets_folder = toolbox_folder .. "/Assets"
+local audios_folder = assets_folder .. "/Audios"
+local images_folder = assets_folder .. "/Images"
 
-local bell_ring_png = imagesFolder .. "/bell-ring.png"
-local bell_ring_mp3 = audiosFolder .. "/bell-ring.mp3"
+local bell_ring_png = images_folder .. "/bell-ring.png"
+local bell_ring_mp3 = audios_folder .. "/bell-ring.mp3"
 
-if not isfolder(mainFolder) then
-    makefolder(mainFolder)
+if not isfolder(main_folder) then
+    makefolder(main_folder)
 end
 
-if not isfolder(toolboxFolder) then
-    makefolder(toolboxFolder)
+if not isfolder(toolbox_folder) then
+    makefolder(toolbox_folder)
 end
 
-if not isfolder(assetsFolder) then
-    makefolder(assetsFolder)
+if not isfolder(assets_folder) then
+    makefolder(assets_folder)
 end
 
-if not isfolder(audiosFolder) then
-    makefolder(audiosFolder)
+if not isfolder(audios_folder) then
+    makefolder(audios_folder)
 end
 
-if not isfolder(imagesFolder) then
-    makefolder(imagesFolder)
+if not isfolder(images_folder) then
+    makefolder(images_folder)
 end
 
 if not isfile(bell_ring_png) then
-    writefile(bell_ring_png, loadedImages["bell-ring"])
+    writefile(bell_ring_png, loaded_images["bell-ring"])
 end
 
 if not isfile(bell_ring_mp3) then
-    writefile(bell_ring_mp3, loadedAudios["bell-ring"])
+    writefile(bell_ring_mp3, loaded_audios["bell-ring"])
 end
 
 --// Notification Sender
-local notificationSound = Instance.new("Sound", soundService)
-notificationSound.Name = "PetewareNotification"
-notificationSound.SoundId = customasset(bell_ring_mp3) or "rbxassetid://2502368191"
-notificationSound.Volume = 1
-notificationSound.Archivable = false
+local notification_sound = Instance.new("Sound", sound_service)
+notification_sound.Name = "PetewareNotification"
+notification_sound.SoundId = customasset(bell_ring_mp3) or "rbxassetid://2502368191"
+notification_sound.Volume = 1
+notification_sound.Archivable = false
     
-notificationSound.Loaded:Wait()
+notification_sound.Loaded:Wait()
 
 if customasset and bell_ring_png then
     bell_ring_png = customasset(bell_ring_png)
@@ -386,17 +391,17 @@ if not bell_ring_png then
     bell_ring_png = "rbxassetid://108052242103510"
 end
 
-local notificationSounds = true
+local notification_sounds = true
 local function PlayNotificationSound()
-    if notificationSound and notificationSounds then
-        notificationSound:Play()
+    if notification_sound and notification_sounds then
+        notification_sound:Play()
     end
 end
 
 function SendNotification(text, duration)
     PlayNotificationSound()
     
-    starterGui:SetCore("SendNotification", {
+    starter_gui:SetCore("SendNotification", {
         Title = "Toolbox",
         Text = text or "Text Content not specified.",
         Icon = bell_ring_png,
@@ -408,7 +413,7 @@ function SendInteractiveNotification(options, yield)
     PlayNotificationSound()
     
     local bindable = Instance.new("BindableFunction")
-    local responseEvent = Instance.new("BindableEvent")
+    local response_event = Instance.new("BindableEvent")
 
     local text = options.Text or "Are you sure?"
     local duration = (yield and 1e9) or options.Duration or 3.5
@@ -421,20 +426,20 @@ function SendInteractiveNotification(options, yield)
             callback(value)
         end
         
-        responseEvent:Fire(value)
+        response_event:Fire(value)
         
         if bindable then
             bindable:Destroy()
         end
         
-        if responseEvent then
-            responseEvent:Destroy()
+        if response_event then
+            response_event:Destroy()
         end
         
         yielding = false
     end
 
-    starterGui:SetCore("SendNotification", {
+    starter_gui:SetCore("SendNotification", {
         Title = "Toolbox",
         Text = text,
         Icon = bell_ring_png,
@@ -449,24 +454,24 @@ function SendInteractiveNotification(options, yield)
             bindable:Destroy()
         end
         
-        if responseEvent then
-            responseEvent:Destroy()
+        if response_event then
+            response_event:Destroy()
         end
     end)
     
     if yield then
         yielding = true
-        local response = responseEvent.Event:Wait()
+        local response = response_event.Event:Wait()
         return response
     end
 end
 
-local cancelToolboxLoading = HandleDetections(detected)
-if cancelToolboxLoading then
+local cancel_toolbox_loading = HandleDetections(detected)
+if cancel_toolbox_loading then
     return Notify("Toolbox loading cancelled.")
 end
 
-local optionalFunctions = {
+local optional_functions = {
     customasset,
     makefolder,
     isfolder,
@@ -483,27 +488,59 @@ local optionalFunctions = {
     hookfunction,
     identifyexecutor,
     getthreadcontext,
-    firesignal
+    firesignal,
+    cloneref,
+    clonefunction,
+    checkcaller,
+    hookmetamethod,
+    getnamecallmethod
 }
 
-local compatibilityCount = 0
-for _, v in ipairs(optionalFunctions) do
+local compatibility_count = 0
+for _, v in ipairs(optional_functions) do
     if v then
-        compatibilityCount = compatibilityCount + 1
+        compatibility_count = compatibility_count + 1
     end
 end
 
-local compatibilityPercentage = (compatibilityCount / #optionalFunctions) * 100
+local compatibility_percentage = (compatibility_count / #optional_functions) * 100
 
-if compatibilityPercentage == 100 then
-    SendNotification(string.format("Your executor is %.0f%% compatible. All toolbox features should work as expected.", compatibilityPercentage), 4)
+if compatibility_percentage == 100 then
+    SendNotification(string.format("Your executor is %.0f%% compatible. All toolbox features should work as expected.", compatibility_percentage), 4)
 else
-    SendNotification(string.format("Your executor is %.0f%% compatible. Some toolbox features may not be compatible with this executor.", compatibilityPercentage), 4)
+    SendNotification(string.format("Your executor is %.0f%% compatible. Some toolbox features may not be compatible with this executor.", compatibility_percentage), 4)
+end
+
+if not global_env.clonefunction or not global_env.checkcaller or (not global_env.hookmetamethod and hookmetamethod) then
+    SendInteractiveNotification({
+        Text = "Some executor functions are missing. Would you like to patch them for better script compatibility across other scripts?",
+        Button1 = "Yes",
+        Button2 = "No",
+        Duration = 10,
+        Callback = function(value)
+            if value == "Yes" then
+                if not global_env.clonefunction then
+                    global_env.clonefunction = clonefunction
+                    SendNotification("Patched: clonefunction")
+                end
+                
+                if not global_env.checkcaller then
+                    global_env.checkcaller = clonefunction(checkcaller)
+                    SendNotification("Patched: checkcaller")
+                end
+                
+                if not global_env.hookmetamethod and hookmetamethod then
+                    global_env.hookmetamethod = clonefunction(hookmetamethod)
+                    SendNotification("Patched: hookmetamethod")
+                end
+            end
+        end
+    })
 end
     
 --// Basic Device Detection
 local device
-if userInputService.KeyboardEnabled and userInputService.MouseEnabled then
+if user_input_service.KeyboardEnabled and user_input_service.MouseEnabled then
     device = "PC"
 else
     device = "Mobile"
@@ -516,25 +553,25 @@ local function RejoinServer()
         if game.PrivateServerId ~= "" then
             return SendNotification("Failed to Rejoin Server. Cannot rejoin a private server.")
         else
-            teleportService:TeleportToPlaceInstance(game.placeId, game.jobId)
+            teleport_service:TeleportToPlaceInstance(game.placeId, game.jobId)
         end
     end)
 end
 
 --// Server Hop
-local serverHopData = toolboxFolder .. "server-hop-data-temp.json"
+local server_hop_data = toolbox_folder .. "server-hop-data-temp.json"
 
-local serverIDs = {}
-local foundAnything = ""
-local actualHour = os.date("!*t").hour
+local server_ids = {}
+local found_any_servers = ""
+local actual_hour = os.date("!*t").hour
 
-if isfile(serverHopData) then
-    serverIDs = httpService:JSONDecode(readfile(serverHopData))
+if isfile(server_hop_data) then
+    server_ids = http_service:JSONDecode(readfile(server_hop_data))
 end
 
-if typeof(serverIDs) ~= "table" or #serverIDs == 0 then
-    serverIDs = { actualHour }
-    writefile(serverHopData, httpService:JSONEncode(serverIDs))
+if typeof(server_ids) ~= "table" or #server_ids == 0 then
+    server_ids = { actual_hour }
+    writefile(server_hop_data, http_service:JSONEncode(server_ids))
 end
 
 local function ServerHop()
@@ -542,12 +579,12 @@ local function ServerHop()
     local function AttemptServerHop()
         local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
 
-        if foundAnything ~= "" then
-            url = url .. "&cursor=" .. foundAnything
+        if found_any_servers ~= "" then
+            url = url .. "&cursor=" .. found_any_servers
         end
 
         local success, site = pcall(function()
-            return httpService:JSONDecode(game:HttpGet(url))
+            return http_service:JSONDecode(game:HttpGet(url))
         end)
 
         if not success or not site or not site.data then
@@ -555,33 +592,33 @@ local function ServerHop()
         end
 
         if site.nextPageCursor then
-            foundAnything = site.nextPageCursor
+            found_any_servers = site.nextPageCursor
         end
 
         for _, v in pairs(site.data) do
             if v.playing < v.maxPlayers then
-                local serverId = tostring(v.id)
-                local canHop = true
+                local server_id = tostring(v.id)
+                local can_server_hop = true
 
-                for i, existing in pairs(serverIDs) do
-                    if i == 1 and existing ~= actualHour then
+                for i, existing in pairs(server_ids) do
+                    if i == 1 and existing ~= actual_hour then
                         if delfile then
-                            delfile(serverHopData)
+                            delfile(server_hop_data)
                         end
-                        serverIDs = { actualHour }
+                        server_ids = { actual_hour }
                         break
                     end
 
-                    if serverId == tostring(existing) then
-                        canHop = false
+                    if server_id == tostring(existing) then
+                        can_server_hop = false
                         break
                     end
                 end
 
-                if canHop then
-                    table.insert(serverIDs, serverId)
-                    writefile(serverHopData, httpService:JSONEncode(serverIDs))
-                    teleportService:TeleportToPlaceInstance(game.PlaceId, serverId)
+                if can_server_hop then
+                    table.insert(server_ids, server_id)
+                    writefile(server_hop_data, http_service:JSONEncode(server_ids))
+                    teleport_service:TeleportToPlaceInstance(game.PlaceId, server_id)
                     task.wait(4)
                     return
                 end
@@ -592,29 +629,29 @@ local function ServerHop()
     while task.wait(1) do
         pcall(AttemptServerHop)
 
-        if foundAnything ~= "" then
+        if found_any_servers ~= "" then
             pcall(AttemptServerHop)
         end
     end
 end
 
 local function OpenDevConsole()
-    starterGui:SetCore("DevConsoleVisible", true) 
+    starter_gui:SetCore("DevConsoleVisible", true) 
 end
 
 --// Queue on Teleport
-local executeOnTeleport = true -- set to false if you dont want execution on server hop / rejoin
+local execute_on_teleport = true -- set to false if you dont want execution on server hop / rejoin
 
-local validTeleportStates = {
+local valid_teleport_states = {
     Enum.TeleportState.Started,
     Enum.TeleportState.InProgress,
     Enum.TeleportState.WaitingForServer
 }
 
-if queueteleport and typeof(queueteleport) == "function" and executeOnTeleport and not getgenv().Toolbox.QueueOnTeleport then
-    getgenv().Toolbox.QueueOnTeleport = true
+if queueteleport and typeof(queueteleport) == "function" and execute_on_teleport and not global_env.Toolbox.QueueOnTeleport then
+    global_env.Toolbox.QueueOnTeleport = true
     game.Players.LocalPlayer.OnTeleport:Connect(function(state)
-        if table.find(validTeleportStates, state) and getgenv().Toolbox.QueueOnTeleport and queueteleport then
+        if table.find(valid_teleport_states, state) and global_env.Toolbox.QueueOnTeleport and queueteleport then
             queueteleport([[
             if not game:IsLoaded() then
                 game.Loaded:Wait()
@@ -629,13 +666,12 @@ elseif not queueteleport or typeof(queueteleport) ~= "function" then
 end
 
 --// Timer
-local startTime = os.clock()
-local endTime = os.clock()
-local finalTime = endTime - startTime
+local start_time = os.clock()
+local end_time = os.clock()
+local final_time = end_time - start_time
 
 --// Class Scanning
-foundInstanceClass = false
-local showProperties = {
+local show_properties = {
     -- Value containers
     IntValue = "Value",
     StringValue = "Value",
@@ -664,71 +700,71 @@ local showProperties = {
     ParticleEmitter = "Enabled",
 }
 
-local foundClasses = {}
-local orderList = {}
-local inShowProps = nil
+local found_classes = {}
+local order_list = {}
+local in_show_props = nil
 local property = nil
 
 local function FetchAvailableClasses()
-    startTime = os.clock()
+    start_time = os.clock()
     print([[[Toolbox]: Scanning for Available Classes...
 
 ---------------------------------------------------------------------------------------------------------------------------
 
         ]])
     
-    foundClasses = {}
+    found_classes = {}
 
     for _, instance in pairs(game:GetDescendants()) do
-        foundClasses[instance.ClassName] = true
+        found_classes[instance.ClassName] = true
     end
     
-    orderList = {}
-    for className in pairs(foundClasses) do
-        table.insert(orderList, className)
+    order_list = {}
+    for class_name in pairs(found_classes) do
+        table.insert(order_list, class_name)
     end
-    table.sort(orderList)
+    table.sort(order_list)
 
-    for _, className in ipairs(orderList) do
-    property = showProperties[className]
+    for _, class_name in ipairs(order_list) do
+    property = show_properties[class_name]
     if property then
         print(string.format(
-            "Name → %s | showProperties table = true | PropertyShown = %s",
-            className,
+            "Name â†’ %s | show_properties table = true | PropertyShown = %s",
+            class_name,
             tostring(property)
         ))
     else
         print(string.format(
-            "Name → %s | showProperties table = false",
-            className
+            "Name â†’ %s | show_properties table = false",
+            class_name
         ))
     end
 end
 
-    endTime = os.clock()
-    finalTime = endTime - startTime
+    end_time = os.clock()
+    final_time = end_time - start_time
     print(string.format([[
 [Toolbox]: Scan completed in %.4f seconds.
 
 ---------------------------------------------------------------------------------------------------------------------------
 
-        ]], finalTime))
+        ]], final_time))
 end
 
 --// Addons Handler
-local addonsFolder = toolboxFolder .. "/Addons"
+local addons_folder = toolbox_folder .. "/Addons"
 
-if not isfolder(addonsFolder) then
-    makefolder(addonsFolder)
+if not isfolder(addons_folder) then
+    makefolder(addons_folder)
 end
 
-local addonName
-local addonScript
-local selectedAddon
-local addonDropdown
+local addon_name
+local addon_script
+local selected_addon
+local addon_dropdown
 
 local function FetchAddonList()
-    local files = listfiles(addonsFolder)
+    local files = listfiles(addons_folder)
     local list = {}
     for _, path in ipairs(files) do
         if path:sub(-4) == ".lua" then
@@ -740,38 +776,31 @@ local function FetchAddonList()
     return list
 end
 
-local addonList = FetchAddonList()
-if #addonList == 0 then
-    table.insert(addonList, "No Addons Found")
+local addon_list = FetchAddonList()
+if #addon_list == 0 then
+    table.insert(addon_list, "No Addons Found")
 end
 
 --// Instant Proximity Prompts
-local proximityPromptService = game:GetService("ProximityPromptService")
-local proximityPromptConn
+local proximity_prompt_service = cloneref(game:GetService("ProximityPromptService"))
+local proximity_prompt_conn
 
 --// Client Anti-Kick
-local clientAntiKick
+local client_anti_kick
 local oldhmmi
 local oldhmmnc
-local oldKickFunction
-
-local index
-xpcall(function()
-    return game.nonexistent
-end, function()
-    index = debug.info(2, "f")
-end)
+local old_kick_function
 
 if hookfunction and typeof(hookfunction) == "function" then
-    oldKickFunction = hookfunction(player.Kick, newcclosure(function()
-        if clientAntiKick then
+    old_kick_function = hookfunction(player.Kick, newcclosure(function()
+        if client_anti_kick then
             SendNotification("Blocked Kick Attempt (direct call)")
             return
         end
     end))
     
-    oldhmmi = hookfunction(index, newcclosure(function(self, key)
-        if clientAntiKick and self == player and key:lower() == "kick" then
+    oldhmmi = hookmetamethod(player, "__index", newcclosure(function(self, key)
+        if client_anti_kick and self == player and key:lower() == "kick" then
             SendNotification("Blocked Kick Attempt (__index)")
             return
         end
@@ -779,8 +808,8 @@ if hookfunction and typeof(hookfunction) == "function" then
         return oldhmmi(self, key)
     end))
     
-    oldhmmnc = hookfunction(namecall, newcclosure(function(self, ...)
-        if clientAntiKick and self == player and getnamecallmethod():lower() == "kick" then
+    oldhmmnc = hookmetamethod(player, "__namecall", newcclosure(function(self, ...)
+        if client_anti_kick and self == player and getnamecallmethod():lower() == "kick" then
             SendNotification("Blocked Kick Attempt (__namecall)")
             return
         end
@@ -790,21 +819,21 @@ if hookfunction and typeof(hookfunction) == "function" then
 end
 
 --// Executor Statistics
-local platform = userInputService:GetPlatform()
+local platform = user_input_service:GetPlatform()
 if platform == Enum.Platform.OSX then
     platform = "MacOS"
 else
     platform = platform.Name
 end
 
-local executorName = identifyexecutor and identifyexecutor() or "Unknown"
-local executorLevel = getthreadcontext and getthreadcontext() or "Unknown"
+local executor_name = identifyexecutor and identifyexecutor() or "Unknown"
+local executor_level = getthreadcontext and getthreadcontext() or "Unknown"
 
 local function FetchExecutorInfo()
     OpenDevConsole()
     print("Device:", platform)    
-    print("Executor:", executorName)
-    print("Executor Level:", executorLevel)
+    print("Executor:", executor_name)
+    print("Executor Level:", executor_level)
     
     local function DumpTable(tbl, indent, path, visited)
         indent = indent or ""
@@ -818,23 +847,23 @@ local function FetchExecutorInfo()
         visited[tbl] = true
 
         for k, v in pairs(tbl) do
-            local currentPath = path ~= "" and (path .. "." .. tostring(k)) or tostring(k)
-            local valueType = typeof(v)
+            local current_path = path ~= "" and (path .. "." .. tostring(k)) or tostring(k)
+            local value_type = typeof(v)
 
-            print(indent .. currentPath .. " : " .. valueType)
+            print(indent .. current_path .. " : " .. value_type)
 
-            if valueType == "table" then
-                DumpTable(v, indent .. "  ", currentPath, visited)
+            if value_type == "table" then
+                DumpTable(v, indent .. "  ", current_path, visited)
             end
         end
     end
     
     print("Executor Environment:\n")
-    DumpTable(getgenv())
+    DumpTable(global_env)
 end
 
 --// Main UI
-local Library = loadedBackups.Wizard()
+local Library = loaded_backups.Wizard()
 
 local DeveloperToolbox = Library:NewWindow("Dev Toolbox | Peteware")
 
@@ -864,7 +893,7 @@ Tools:CreateButton("Hydroxide", function()
     WebImport("ui/main")
 end)
 
-Tools:CreateButton("Ketamine", loadedBackups.Ketamine)
+Tools:CreateButton("Ketamine", loaded_backups.Ketamine)
 
 local InstanceScanner = DeveloperToolbox:NewSection("Instance Scanner")
 
@@ -873,64 +902,64 @@ InstanceScanner:CreateButton("Fetch All Available Classes", function()
     FetchAvailableClasses()
 end)
 
-InstanceScanner:CreateTextbox("Scan by Class", function(className)
+InstanceScanner:CreateTextbox("Scan by Class", function(class_name)
     OpenDevConsole()
-    local startTime = os.clock()
-    local foundInstanceClass = false
+    local start_time = os.clock()
+    local found_instance_class = false
 
     print(string.format([[
 [Toolbox]: Scanning for Instances of Class: %s
 
 ---------------------------------------------------------------------------------------------------------------------------
 
-]], className))
+]], class_name))
 
     for _, inst in ipairs(game:GetDescendants()) do
-        if inst.ClassName == className then
-            foundInstanceClass = true
+        if inst.ClassName == class_name then
+            found_instance_class = true
 
-            local output = "Name → " .. inst.Name .. " | Path → " .. inst:GetFullName()
-            local propName = showProperties[className]
-            if propName and inst[propName] then
-                output = output .. " | " .. propName .. " = " .. tostring(inst[propName])
+            local output = "Name â†’ " .. inst.Name .. " | Path â†’ " .. inst:GetFullName()
+            local property_name = show_properties[class_name]
+            if property_name and inst[property_name] then
+                output = output .. " | " .. property_name .. " = " .. tostring(inst[property_name])
             end
 
             print(output)
         end
     end
 
-    if not foundInstanceClass then
-        warn(string.format("[Toolbox]: No instances of class '%s' were found.", className))
+    if not found_instance_class then
+        warn(string.format("[Toolbox]: No instances of class '%s' were found.", class_name))
     end
 
-    local endTime = os.clock()
-    local finalTime = endTime - startTime
+    local end_time = os.clock()
+    local final_time = end_time - start_time
 
     print(string.format([[
 [Toolbox]: Scan completed in %.4f seconds.
 
 ---------------------------------------------------------------------------------------------------------------------------
 
-]], finalTime))
+]], final_time))
 end)
 
 local Addons = DeveloperToolbox:NewSection("Addons")
 
 Addons:CreateTextbox("Input Script Name", function(text)
-    addonName = text:gsub("%.lua$", "") .. ".lua"
+    addon_name = text:gsub("%.lua$", "") .. ".lua"
 end)
 
 Addons:CreateTextbox("Input Script", function(text)
-    addonScript = text
+    addon_script = text
 end)
 
 Addons:CreateButton("Save Addon", function()
-    if not addonName or addonName == "" or not addonScript or addonScript == "" then
+    if not addon_name or addon_name == "" or not addon_script or addon_script == "" then
         return SendNotification("Missing name or script input. Make sure to press enter after inputting details.")
     end
 
-    writefile(addonsFolder .. "/" .. addonName, addonScript)
-    SendNotification("Saved Addon: " .. addonName)
+    writefile(addons_folder .. "/" .. addon_name, addon_script)
+    SendNotification("Saved Addon: " .. addon_name)
     task.delay(2, function()
         SendInteractiveNotification({
             Text = "Would you like to reload the Developers Toolbox to apply your addon changes?",
@@ -945,16 +974,16 @@ Addons:CreateButton("Save Addon", function()
     end)
 end)
 
-addonDropdown = Addons:CreateDropdown("Select Addon", addonList, 1, function(text)
-    selectedAddon = text ~= "No Addons Found" and text or nil
+addon_dropdown = Addons:CreateDropdown("Select Addon", addon_list, 1, function(text)
+    selected_addon = text ~= "No Addons Found" and text or nil
 end)
 
 Addons:CreateButton("Load Selected Addon", function()
-    if not selectedAddon then
+    if not selected_addon then
         return SendNotification("No addon selected.")
     end
 
-    local path = addonsFolder .. "/" .. selectedAddon .. ".lua"
+    local path = addons_folder .. "/" .. selected_addon .. ".lua"
     if not isfile(path) then 
         return SendNotification("Addon not found.") 
     end
@@ -964,19 +993,18 @@ Addons:CreateButton("Load Selected Addon", function()
     end)
 
     if success then
-        SendNotification("Loaded Addon: " .. selectedAddon)
+        SendNotification("Loaded Addon: " .. selected_addon)
     else
-        print("Error loading addon:\n" .. tostring(result))
-        SendNotification("Error Occured. Please try and Re-Execute the Developers Toolbox.")
+        SendNotification("Error loading addon:\n" .. tostring(result))
     end
 end)
 
 Addons:CreateButton("Delete Selected Addon", function()
-    if not selectedAddon then
+    if not selected_addon then
         return SendNotification("No addon selected.")
     end
 
-    local path = addonsFolder .. "/" .. selectedAddon .. ".lua"
+    local path = addons_folder .. "/" .. selected_addon .. ".lua"
     if not isfile(path) then
         return SendNotification("Addon not found.")
     end
@@ -988,7 +1016,7 @@ Addons:CreateButton("Delete Selected Addon", function()
         Callback = function(value)
             if value == "Yes" then
                 delfile(path)
-                selectedAddon = nil
+                selected_addon = nil
                 SendNotification("Deleted Addon: " .. path:match("[^/\\]+$"))
                 task.delay(2, function()
                     SendInteractiveNotification({
@@ -1012,34 +1040,32 @@ end)
 local Other = DeveloperToolbox:NewSection("Other")
 
 Other:CreateToggle("Instant Prompts", function(value)
-    instantProximityPrompts = value
-    
     if not fireproximityprompt or typeof(fireproximityprompt) ~= "function" then
         return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing fireproximityprompt)")
     end
     
-    if instantProximityPrompts then
-        proximityPromptConn = proximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
+    if value then
+        proximity_prompt_conn = proximity_prompt_service.PromptButtonHoldBegan:Connect(function(prompt)
             if prompt.HoldDuration > 0 then
                 fireproximityprompt(prompt)
             end
         end)
         SendNotification("Instant Proximity Prompts Enabled. You can now instantly interact with Proximity Prompts.")
     else
-        proximityPromptConn:Disconnect()
-        proximityPromptConn = nil
+        proximity_prompt_conn:Disconnect()
+        proximity_prompt_conn = nil
         SendNotification("Instant Proximity Prompt Disabled. You are now unable to interact with Proximity Prompts instantly.")
     end
 end)
 
 Other:CreateToggle("Client Anti-Kick", function(value)
-    clientAntiKick = value
+    client_anti_kick = value
     
     if not hookfunction or typeof(hookfunction) ~= "function" then
         return SendNotification("Incompatible Exploit. Your exploit does not support this feature (missing hookfunction)")
     end
     
-    if clientAntiKick then
+    if client_anti_kick then
         SendNotification("Client Anti-Kick Enabled.")
     else
         SendNotification("Client Anti-Kick Disabled.")
@@ -1047,9 +1073,9 @@ Other:CreateToggle("Client Anti-Kick", function(value)
 end)
 
 Other:CreateToggle("Notification Sounds", function(value)
-    notificationSounds = value
+    notification_sounds = value
     
-    if notificationSounds then
+    if notification_sounds then
         SendNotification("Notification Sounds Enabled.")
     else
         SendNotification("Notification Sounds Disabled.")
@@ -1057,14 +1083,14 @@ Other:CreateToggle("Notification Sounds", function(value)
 end)
 
 --// Notification Sounds Toggle Setup
-local imageToggle = game:GetService("CoreGui").WizardLibrary.Container["DevToolbox|PetewareWindow"].Body.OtherSection.NotificationSoundsToggleHolder.ToggleBackground.ToggleButton
-if imageToggle then
-    imageToggle.ImageTransparency = 0
+local image_toggle = cloneref(core_gui.WizardLibrary.Container["DevToolbox|PetewareWindow"].Body.OtherSection.NotificationSoundsToggleHolder.ToggleBackground.ToggleButton)
+if image_toggle then
+    image_toggle.ImageTransparency = 0
 end
 
 Other:CreateButton("FPS Booster", function()
     PlayNotificationSound()
-    getgenv().FPS_Booster_Settings = {
+    global_env.FPS_Booster_Settings = {
         Players = {
             ["Ignore Me"] = true, -- Ignore your Character
             ["Ignore Others"] = true -- Ignore other Characters
@@ -1087,7 +1113,7 @@ Other:CreateButton("FPS Booster", function()
         ["Low Rendering"] = true, -- Lower Rendering
         ["Low Quality Parts"] = true -- Lower quality parts
         }
-    loadedBackups["FPS-Booster"]()
+    loaded_backups["FPS-Booster"]()
 end)
 
 Other:CreateButton("Executor Info", function()
@@ -1110,7 +1136,7 @@ Other:CreateButton("Exit Toolbox", function()
         Callback = function(value)
             if value == "Yes" then
                 pcall(function() 
-                    coreGui:FindFirstChild("WizardLibrary"):Destroy()
+                    core_gui:FindFirstChild("WizardLibrary"):Destroy()
                 end)
             elseif value == "No" then
                 SendNotification("Exit cancelled.")
@@ -1120,38 +1146,38 @@ Other:CreateButton("Exit Toolbox", function()
 end)
 
 --// UI Display Order
-local newUI = coreGui:FindFirstChild("WizardLibrary")
-if newUI then
-    newUI.DisplayOrder = 10000
+local toolbox_ui = core_gui:FindFirstChild("WizardLibrary")
+if toolbox_ui then
+    toolbox_ui.DisplayOrder = 10000
 end
 
 --// Events
-local uiConn; uiConn = coreGui.ChildRemoved:Connect(function(child)
-    if child.Name == "WizardLibrary" then
-        uiConn:Disconnect()
-        uiConn = nil
+local ui_handler_conn; ui_handler_conn = core_gui.ChildRemoved:Connect(function(child)
+    if child == toolbox_ui then
+        ui_handler_conn:Disconnect()
+        ui_handler_conn = nil
         
-        if notificationSound then
-            notificationSound:Destroy()
+        if notification_sound then
+            notification_sound:Destroy()
         end
         
-        if clientAntiKick then
-            clientAntiKick = nil
+        if client_anti_kick then
+            client_anti_kick = nil
         end
         
-        if proximityPromptConn then
-            proximityPromptConn:Disconnect()
-            proximityPromptConn = nil
+        if proximity_prompt_conn then
+            proximity_prompt_conn:Disconnect()
+            proximity_prompt_conn = nil
         end
         
-        if getgenv().Toolbox.QueueOnTeleport then
-            getgenv().Toolbox.QueueOnTeleport = false
+        if global_env.Toolbox.QueueOnTeleport then
+            global_env.Toolbox.QueueOnTeleport = false
         end
     end
 end)
 
 --// Executing Finished
-getgenv().Toolbox.Executing = nil
+global_env.Toolbox.Executing = nil
 
 --[[// Credits
 Infinite Yield: Server Hop, Dex Explorer, Remote Spy, Client-Anti-Kick
