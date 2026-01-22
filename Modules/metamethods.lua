@@ -42,7 +42,7 @@ return {
         return -game
     end,
     __concat = function()
-        return game .. id
+        return game .. "_"
     end,
     __idiv = function()
         game = game // num
