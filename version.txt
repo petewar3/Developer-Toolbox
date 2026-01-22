@@ -1,3 +1,3 @@
-version: 1.12.1
+version: 1.13.0
 releaseDate: 2026-1-22
-notes: Fixed cache using images as audios
+notes: Changed variable naming from camelCase to snake_case, added more toolbox compatibility with more functions, added interactive notification to apply patchable executor functions to the global executor environment to help overall script compatibility for scripts, optimisations and improvements, added undetected references (cloneref) to prevent instance reference detection.
