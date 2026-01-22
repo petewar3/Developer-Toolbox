@@ -1180,7 +1180,7 @@ end)
 global_env.Toolbox.Executing = nil
 
 --[[// Credits
-Infinite Yield: Server Hop, Dex Explorer, Remote Spy, Client-Anti-Kick
+Infinite Yield: Dex Explorer, Remote Spy
 Infinite Yield Discord Server: https://discord.gg/78ZuWSq
 Hosvile: Hydroxide 
 Hosvile Github: https://github.com/hosvile/
