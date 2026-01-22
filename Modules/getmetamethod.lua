@@ -7,15 +7,12 @@ return function(instance, method)
     local metamethod = metamethods[method]
     assert(typeof(metamethod) == "function", string.format("bad argument #2 'getmetamethod' (invalid metamethod: %s)", method))
 
-    local success, result = xpcall(function()
-        return metamethod(instance)
-    end, function(err)
-        return debug.info(2, "f")
+    local captured
+    xpcall(function()
+        metamethod(instance)
+    end, function()
+        captured = debug.info(2, "f")
     end)
 
-    if success then
-        return result
-    else
-        return nil
-    end
+    return captured
 end
