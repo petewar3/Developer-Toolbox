@@ -1,50 +1,50 @@
 return {
-    __index = function()
-        return game["_"]
+    __index = function(self)
+        return self["_"]
     end,
-    __newindex = function()
-        game["_"] = nil
+    __newindex = function(self)
+        self["_"] = nil
     end,
-    __namecall = function()
-        game:_()
+    __namecall = function(self)
+        self:_()
     end,
-    __call = function()
-        game()
+    __call = function(self)
+        self()
     end,
-    __len = function()
-        return #game
+    __len = function(self)
+        return #self
     end,
-    __lt = function()
-        return game < num
+    __lt = function(self)
+        return self < num
     end,
-    __le = function()
-        return game <= num
+    __le = function(self)
+        return self <= num
     end,
-    __add = function()
-        game = game + num
+    __add = function(self)
+        self = self + num
     end,
-    __sub = function()
-        game = game - num
+    __sub = function(self)
+        self = self - num
     end,
-    __mul = function()
-        game = game * num
+    __mul = function(self)
+        self = self * num
     end,
-    __div = function()
-        game = game / num
+    __div = function(self)
+        self = self / num
     end,
-    __mod = function()
-        game = game % num
+    __mod = function(self)
+        self = self % num
     end,
-    __pow = function()
-        game = game ^ num
+    __pow = function(self)
+        self = self ^ num
     end,
-    __unm = function()
-        return -game
+    __unm = function(self)
+        return -self
     end,
-    __concat = function()
-        return game .. "_"
+    __concat = function(self)
+        return self .. "_"
     end,
-    __idiv = function()
-        game = game // num
+    __idiv = function(self)
+        self = self // num
     end
 }
