@@ -56,6 +56,19 @@ for _, script in pairs(scripts) do
     end
 end
 
+local function FetchUniquePath(base_path)
+    if not isfile(base_path) then
+        return base_path
+    end
+    
+    for i = 1, math.huge do
+        local new_path = base_path:gsub("%.lua$", "_" .. i .. ".lua")
+        if not isfile(new_path) then
+            return new_path
+        end
+    end
+end
+
 -- keyword configuration to check for scripts with keywords
 local use_search_keyword = false
 local search_keyword = "getfenv"
@@ -66,7 +79,9 @@ for _, instance in ipairs(getnilinstances()) do
         local src = _decompile(instance)
         if src and (not use_search_keyword or src:find(search_keyword)) then
             _warn("HIDDEN GAME SCRIPT FOUND:", instance.Name)
-            writefile(scripts[instance.ClassName] .. "/" .. instance.Name .. ".lua", src)
+            local path = scripts[instance.ClassName] .. "/" .. instance.Name .. ".lua"
+            path = FetchUniquePath(path)
+            writefile(path, src)
         end
     end
 end
