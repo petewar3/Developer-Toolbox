@@ -1,4 +1,53 @@
-local metamethods = loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Modules/metamethods.lua"))()
+local metamethods = {
+    __index = function(self)
+        return self["_"]
+    end,
+    __newindex = function(self)
+        self["_"] = 
+    end,
+    __namecall = function(self)
+        self:_()
+    end,
+    __call = function(self)
+        self()
+    end,
+    __len = function(self)
+        return #self
+    end,
+    __lt = function(self)
+        return self < 7
+    end,
+    __le = function(self)
+        return self <= 7
+    end,
+    __add = function(self)
+        self = self + 7
+    end,
+    __sub = function(self)
+        self = self - 7
+    end,
+    __mul = function(self)
+        self = self * 7
+    end,
+    __div = function(self)
+        self = self / 7
+    end,
+    __mod = function(self)
+        self = self % 7
+    end,
+    __pow = function(self)
+        self = self ^ 7
+    end,
+    __unm = function(self)
+        return -self
+    end,
+    __concat = function(self)
+        return self .. "_"
+    end,
+    __idiv = function(self)
+        self = self // 7
+    end
+}
 
 return function(instance, method)
     assert(typeof(instance) == "Instance", string.format("bad argument #1 'getmetamethod' (Instance expected, got %s)", typeof(instance)))
