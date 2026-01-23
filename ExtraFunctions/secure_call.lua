@@ -21,26 +21,29 @@ end)
 local setidentity = setidentity or setthreadidentity or set_thread_identity or setthreadcontext or set_thread_context or (syn and syn.set_thread_identity)
 
 return function(func, ...)
-    local func_type = typeof(func)
-    
-    assert(func_type == "function", string.format(
-        "bad argument #1 to 'secure_call' (function expected, got %s)", func_type
+    assert(typeof(func) == "function", string.format(
+        "bad argument #1 to 'secure_call' (function expected, got %s)", typeof(func)
     ))
 
+    local args = { ... }
     local calling_script = getcallingscript()
 
-    local _, script_fenv = xpcall(function()
+    local success, script_fenv = xpcall(function()
         return getsenv(calling_script)
     end, function()
         return getfenv(calling_script)
     end)
     
-    return coroutine.wrap(function(...)
+    if not success or typeof(script_fenv) ~= "table" then
+        return func(table.unpack(args))
+    end
+    
+    return coroutine.wrap(function()
         setidentity(2)
         setfenv(0, script_fenv)
         setfenv(1, script_fenv)
-        return func(...)
-    end)(...)
+        return func(table.unpack(args))
+    end)()
 end
 
 --[[ just some usage here
