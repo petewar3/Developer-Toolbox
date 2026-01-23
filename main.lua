@@ -132,6 +132,17 @@ if not loadstring or typeof(loadstring) ~= "function" then
     return IncompatibleExploit()
 end
 
+--// Data Initialiser
+local main_folder = "Peteware"
+local toolbox_folder = main_folder .. "/Toolbox"
+local assets_folder = toolbox_folder .. "/Assets"
+local audios_folder = assets_folder .. "/Audios"
+local images_folder = assets_folder .. "/Images"
+
+local bell_ring_png = images_folder .. "/bell-ring.png"
+local bell_ring_mp3 = audios_folder .. "/bell-ring.mp3"
+
+--// Data Loader
 local toolbox_directory = "https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/"
 local extra_functions_directory = toolbox_directory .. "ExtraFunctions/"
 local backups_directory = toolbox_directory .. "Backups/"
@@ -147,8 +158,6 @@ local extra_functions = {
 }
 
 local backups = {
-    "FPS-Booster-Backup",
-    "Ketamine-Backup",
     "Wizard-Backup"
 }
 
@@ -168,20 +177,22 @@ local loaded_images = {}
 yielding = true
 loadstring_event:Fire()
 
-for _, func in ipairs(extra_functions) do
-    local success, loaded_function = pcall(function()
-        return loadstring(game:HttpGet(extra_functions_directory .. func .. ".lua"))()
-    end)
+for _, func in pairs(extra_functions) do
+    if not global_env[func] then
+        local success, loaded_function = pcall(function()
+            return loadstring(game:HttpGet(extra_functions_directory .. func .. ".lua"))()
+        end)
     
-    if not success or not loaded_function then
-        yielding = false
-        return
+        if not success or not loaded_function then
+            yielding = false
+            return
+        end
+    
+        loaded_functions[func] = loaded_function
     end
-    
-    loaded_functions[func] = loaded_function
 end
 
-for _, backup in ipairs(backups) do
+for _, backup in pairs(backups) do
     local success, loaded_backup = pcall(function()
         return loadstring(game:HttpGet(backups_directory .. backup .. ".lua"))
     end)
@@ -194,30 +205,34 @@ for _, backup in ipairs(backups) do
     loaded_backups[backup:gsub("-Backup", "")] = loaded_backup
 end
 
-for _, audio in ipairs(audios) do
-    local success, loaded_audio = pcall(function()
-        return game:HttpGet(audios_directory .. audio .. ".mp3")
-    end)
+for _, audio in pairs(audios) do
+    if not isfile(bell_ring_mp3) then
+        local success, loaded_audio = pcall(function()
+            return game:HttpGet(audios_directory .. audio .. ".mp3")
+        end)
     
-    if not success or not loaded_audio then
-        yielding = false
-        return
+        if not success or not loaded_audio then
+            yielding = false
+            return
+        end
+    
+        loaded_audios[audio] = loaded_audio
     end
-    
-    loaded_audios[audio] = loaded_audio
 end
 
-for _, image in ipairs(images) do
-    local success, loaded_image = pcall(function()
-        return game:HttpGet(images_directory .. image .. ".png")
-    end)
+for _, image in pairs(images) do
+    if not isfile(bell_ring_png) then
+        local success, loaded_image = pcall(function()
+            return game:HttpGet(images_directory .. image .. ".png")
+        end)
     
-    if not success or not loaded_image then
-        yielding = false
-        return
+        if not success or not loaded_image then
+            yielding = false
+            return
+        end
+    
+        loaded_images[image] = loaded_image
     end
-    
-    loaded_images[image] = loaded_image
 end
 
 yielding = false
@@ -339,15 +354,6 @@ local function HandleDetections(boolean)
 end
 
 --// Data Handler
-local main_folder = "Peteware"
-local toolbox_folder = main_folder .. "/Toolbox"
-local assets_folder = toolbox_folder .. "/Assets"
-local audios_folder = assets_folder .. "/Audios"
-local images_folder = assets_folder .. "/Images"
-
-local bell_ring_png = images_folder .. "/bell-ring.png"
-local bell_ring_mp3 = audios_folder .. "/bell-ring.mp3"
-
 if not isfolder(main_folder) then
     makefolder(main_folder)
 end
@@ -379,19 +385,11 @@ end
 --// Notification Sender
 local notification_sound = Instance.new("Sound", sound_service)
 notification_sound.Name = "PetewareNotification"
-notification_sound.SoundId = customasset(bell_ring_mp3) or "rbxassetid://2502368191"
+notification_sound.SoundId = (customasset and bell_ring_mp3 and customasset(bell_ring_mp3)) or "rbxassetid://2502368191"
 notification_sound.Volume = 1
 notification_sound.Archivable = false
     
 notification_sound.Loaded:Wait()
-
-if customasset and bell_ring_png then
-    bell_ring_png = customasset(bell_ring_png)
-end
-
-if not bell_ring_png then
-    bell_ring_png = "rbxassetid://108052242103510"
-end
 
 local notification_sounds = true
 local function PlayNotificationSound()
@@ -406,7 +404,7 @@ function SendNotification(text, duration)
     starter_gui:SetCore("SendNotification", {
         Title = "Toolbox",
         Text = text or "Text Content not specified.",
-        Icon = bell_ring_png,
+        Icon = (customasset and bell_ring_png and customasset(bell_ring_png)) or "rbxassetid://108052242103510",
         Duration = duration or 3.5
     })
 end
@@ -870,7 +868,7 @@ local function FetchExecutorInfo()
 end
 
 --// Main UI
-local Library = loaded_backups.Wizard()
+local Library = loaded_backups["Wizard"]()
 
 local DeveloperToolbox = Library:NewWindow("Dev Toolbox | Peteware")
 
@@ -900,7 +898,9 @@ Tools:CreateButton("Hydroxide", function()
     WebImport("ui/main")
 end)
 
-Tools:CreateButton("Ketamine", loaded_backups.Ketamine)
+Tools:CreateButton("Ketamine", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/Ketamine-Backup.lua"))()
+end)
 
 local InstanceScanner = DeveloperToolbox:NewSection("Instance Scanner")
 
@@ -1120,7 +1120,7 @@ Other:CreateButton("FPS Booster", function()
         ["Low Rendering"] = true, -- Lower Rendering
         ["Low Quality Parts"] = true -- Lower quality parts
         }
-    loaded_backups["FPS-Booster"]()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/petewar3/Developer-Toolbox/refs/heads/main/Backups/FPS-Booster-Backup.lua"))()
 end)
 
 Other:CreateButton("Executor Info", function()
@@ -1195,4 +1195,4 @@ Cherry: Ketamine
 Cherry Discord Server: https://discord.gg/7xYqrnwSWr
 RIP#6666: FPS Booster
 RIP#6666 Discord Server: https://discord.gg/rips
-]] 
+]]
