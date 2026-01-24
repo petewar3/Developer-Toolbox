@@ -206,7 +206,7 @@ for _, backup in pairs(backups) do
 end
 
 for _, audio in pairs(audios) do
-    if not isfile(bell_ring_mp3) then
+    if not isfile(audios_folder .. "/" .. audio .. ".mp3") then
         local success, loaded_audio = pcall(function()
             return game:HttpGet(audios_directory .. audio .. ".mp3")
         end)
@@ -221,7 +221,7 @@ for _, audio in pairs(audios) do
 end
 
 for _, image in pairs(images) do
-    if not isfile(bell_ring_png) then
+    if not isfile(images_folder .. "/" .. image .. ".png") then
         local success, loaded_image = pcall(function()
             return game:HttpGet(images_directory .. image .. ".png")
         end)
