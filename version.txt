@@ -1,3 +1,3 @@
-version: 1.15.0
+version: 1.15.1
 releaseDate: 2026-1-23
-notes: immensely improved loading time speed by over 2x, more optimisations for data loading, etc
+notes: improved asset loading to be more modular
