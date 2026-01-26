@@ -564,7 +564,7 @@ local function RejoinServer()
 end
 
 --// Server Hop
-local server_hop_data = toolbox_folder .. "server-hop-data-temp.json"
+local server_hop_data = toolbox_folder .. "/server-hop-data-temp.json"
 
 local server_ids = {}
 local found_any_servers = ""
