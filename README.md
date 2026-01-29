@@ -55,7 +55,7 @@ Please credit Peteware when redistributing.
 ## Support
 
 Support for Developer Toolbox is provided primarily through our Discord community:
-[Join Discord](https://discord.gg/AutHEkAmn4)
+[Join Discord](https://discord.gg/GSpmjtMSVA)
 
 You can use the discord to:
 
