@@ -24,12 +24,18 @@ local container_priority_conn
 local function MoveContainerPriority()
     local children = gethui():GetChildren()
     if children[#children] ~= drawing_ui_container then
-        container_priority_conn:Disconnect()
+        if typeof(container_priority_conn) == "RBXScriptConnection" then
+            container_priority_conn:Disconnect()
+        end
+        
         drawing_ui_container.Parent = nil
         drawing_ui_container.Parent = gethui()
         container_priority_conn = gethui().ChildAdded:Connect(function(child)
             if typeof(drawing_ui_container) ~= "Instance" then
-                container_priority_conn:Disconnect()
+                if typeof(container_priority_conn) == "RBXScriptConnection" then
+                    container_priority_conn:Disconnect()
+                end
+                
                 return
             end
             
