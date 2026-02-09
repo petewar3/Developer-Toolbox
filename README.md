@@ -47,6 +47,9 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/Petewar3/Developer-To
 
 ## License
 
+This project is licensed under the MIT License.
+https://opensource.org/licenses/MIT
+
 MIT License — free to use, modify, and share.
 Please credit Peteware when redistributing.
 
