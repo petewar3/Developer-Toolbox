@@ -1,4 +1,3 @@
--- in development
 local Drawing = {}
 
 local DrawingPrimitives = {
@@ -11,6 +10,8 @@ local DrawingPrimitives = {
 local gethui = gethui or function()
     return game:GetService("CoreGui")
 end
+
+local game, Instance, Enum, math, Vector2, Color3, typeof, assert, string, pairs = game, Instance, Enum, math, Vector2, Color3, typeof, assert, string, pairs
 
 local drawing_ui_container = Instance.new("ScreenGui", gethui())
 drawing_ui_container.Name = "DrawingContainer"
@@ -30,6 +31,7 @@ MoveContainerPriority()
 local container_priority_conn = gethui().ChildAdded:Connect(function(child)
     if typeof(drawing_ui_container) ~= "Instance" then
         container_priority_conn:Disconnect()
+        return
     end
     
     if child ~= drawing_ui_container then
@@ -42,7 +44,7 @@ local function Rotate(vector)
 end
 
 local function Magnitude(vector)
-    return math.sqrt(vector.X * vector.X + vector.Y * vector.Y)
+    return math.sqrt(vector.X ^ 2 + vector.Y ^ 2)
 end
 
 local ZIndexCounter = 0
@@ -60,16 +62,8 @@ local FontMap = {
 }
 
 local function ResolveFont(index)
-    index = math.floor(index)
-    if index < 0 then
-        index = 0
-    end
-    
-    if index > 3 then
-        index = 3
-    end
-    
-    return FontMap[index + 1] 
+    index = math.floor(math.clamp(index, 0, 3))
+    return FontMap[index + 1]
 end
 
 local RenderContainer = {
@@ -286,69 +280,117 @@ end
 Renderers.Triangle = {}
 
 function Renderers.Triangle:Create(obj)
-    local lines = {}
-
-    for i = 1, 3 do
-        local frame = Instance.new("Frame", drawing_ui_container)
-        frame.BorderSizePixel = 0
-        frame.AnchorPoint = Vector2.new(0, 0.5)
-        frame.BackgroundColor3 = obj.Color
-        frame.BackgroundTransparency = 1 - obj.Transparency
-        frame.Visible = obj.Visible
-        frame.ZIndex = NextZIndex()
-        lines[i] = frame
+    local left_image = Instance.new("ImageLabel")
+    local right_image = Instance.new("ImageLabel")
+    
+    for _, image in pairs({left_image, right_image}) do
+        image.BackgroundTransparency = 1
+        image.AnchorPoint = Vector2.new(0.5, 0.5)
+        image.BorderSizePixel = 0
     end
-
+    
+    left_image.Image = "rbxassetid://319692151"
+    right_image.Image = "rbxassetid://319692171"
+    
     obj._backend = {
-        Lines = lines,
+        Left = left_image,
+        Right = right_image,
+        Parent = nil,
         _cache = {}
     }
+    
+    if typeof(obj.Parent) == "Instance" then
+        left_image.Parent = obj.Parent
+        right_image.Parent = obj.Parent
+        obj._backend.Parent = obj.Parent
+    end
 
-    self:Update(obj, "All")
+    self:Update(obj)
 end
 
 function Renderers.Triangle:Update(obj)
-    local a, b, c = obj.PointA, obj.PointB, obj.PointC
+    local left_image, right_image = obj._backend.Left, obj._backend.Right
+    local point_a, point_b, point_c = obj.PointA, obj.PointB, obj.PointC
+    local visible, zindex, color, parent = obj.Visible, obj.ZIndex, obj.Color, obj.Parent
     
-    local points = { 
-        a,
-        b,
-        c,
-        a
+    if obj._backend.Parent ~= parent then
+        if typeof(parent) == "Instance" then
+            left_image.Parent = parent
+            right_image.Parent = parent
+            obj._backend.Parent = parent
+        else
+            left_image.Parent = nil
+            right_image.Parent = nil
+            obj._backend.Parent = nil
+        end
+    end
+
+    if not CacheCheck(obj._backend, "Visible", visible) then
+        left_image.Visible = visible
+        right_image.Visible = visible
+    end
+    if not CacheCheck(obj._backend, "ZIndex", zindex) then
+        left_image.ZIndex = zindex
+        right_image.ZIndex = zindex
+    end
+    if not CacheCheck(obj._backend, "Color", color) then
+        left_image.ImageColor3 = color
+        right_image.ImageColor3 = color
+    end
+
+    if not visible then return end
+
+    local edges = {
+        {Start = point_a, End = point_b, Opposite = point_c},
+        {Start = point_b, End = point_c, Opposite = point_a},
+        {Start = point_c, End = point_a, Opposite = point_b}
     }
+    
+    local longest_edge = edges[1]
+    for i = 2, 3 do
+        if (edges[i].End - edges[i].Start).Magnitude > (longest_edge.End - longest_edge.Start).Magnitude then
+            longest_edge = edges[i]
+        end
+    end
 
-    for i = 1, 3 do
-        local frame = obj._backend.Lines[i]
-        local from, to = points[i], points[i + 1]
-        local dir = to - from
-        local length = Magnitude(dir)
-        local angle = Rotate(dir)
+    local edge_vector = longest_edge.End - longest_edge.Start
+    local to_opposite = longest_edge.Opposite - longest_edge.Start
+    local projected_length = edge_vector.Unit:Dot(to_opposite)
+    local perpendicular_vector = to_opposite - (edge_vector.Unit * projected_length)
+    local perpendicular_length = perpendicular_vector.Magnitude
+    local rotation_angle = math.deg(math.atan2(perpendicular_vector.Y, perpendicular_vector.X)) - 90
 
-        if not CacheCheck(obj._backend, "Size"..i, length .. "," .. obj.Thickness) then
-            frame.Size = UDim2.fromOffset(length, obj.Thickness)
-        end
-        if not CacheCheck(obj._backend, "Position"..i, from) then
-            frame.Position = UDim2.fromOffset(from.X, from.Y)
-        end
-        if not CacheCheck(obj._backend, "Rotation"..i, angle) then
-            frame.Rotation = angle
-        end
-        if not CacheCheck(obj._backend, "Color"..i, obj.Color) then
-            frame.BackgroundColor3 = obj.Color
-        end
-        if not CacheCheck(obj._backend, "Transparency"..i, obj.Transparency) then
-            frame.BackgroundTransparency = 1 - obj.Transparency
-        end
-        if not CacheCheck(obj._backend, "Visible"..i, obj.Visible) then
-            frame.Visible = obj.Visible
-        end
+    local base_point = longest_edge.Start + (edge_vector.Unit * projected_length)
+    local other_point = (-edge_vector:Cross(perpendicular_vector) < 0) and (base_point - perpendicular_vector) or (base_point + (edge_vector - perpendicular_vector))
+    local width1 = base_point - other_point
+    local width2 = width1.Unit * (edge_vector.Magnitude - width1.Magnitude)
+    local center1 = base_point + (width2 + perpendicular_vector) * 0.5
+    local center2 = other_point + (width1 + perpendicular_vector) * 0.5
+
+    if not CacheCheck(obj._backend, "LeftPosition", center2) then
+        left_image.Position = UDim2.fromOffset(center2.X - 1, center2.Y - 1)
+    end
+    if not CacheCheck(obj._backend, "LeftSize", UDim2.fromOffset(width1.Magnitude + 2, perpendicular_length + 2)) then
+        left_image.Size = UDim2.fromOffset(width1.Magnitude + 2, perpendicular_length + 2)
+    end
+    if not CacheCheck(obj._backend, "LeftRotation", rotation_angle) then
+        left_image.Rotation = rotation_angle
+    end
+
+    if not CacheCheck(obj._backend, "RightPosition", center1) then
+        right_image.Position = UDim2.fromOffset(center1.X - 1, center1.Y - 1)
+    end
+    if not CacheCheck(obj._backend, "RightSize", UDim2.fromOffset(width2.Magnitude + 2, perpendicular_length + 2)) then
+        right_image.Size = UDim2.fromOffset(width2.Magnitude + 2, perpendicular_length + 2)
+    end
+    if not CacheCheck(obj._backend, "RightRotation", rotation_angle) then
+        right_image.Rotation = rotation_angle
     end
 end
 
 function Renderers.Triangle:Destroy(obj)
-    for _, frame in ipairs(obj._backend.Lines) do
-        frame:Destroy()
-    end
+    obj._backend.Left:Destroy()
+    obj._backend.Right:Destroy()
     obj._backend = nil
 end
 
@@ -491,7 +533,7 @@ PrimitiveConstructors.Text = function(obj)
     obj.Font = 2
     obj.Center = false
     obj.Outline = false
-    obj.OutlineColor = Color3.new()
+    obj.OutlineColor = Color3.new(0, 0, 0)
 end
 
 PrimitiveConstructors.Triangle = function(obj)
@@ -510,7 +552,10 @@ function Drawing.new(drawing_type)
     object.Visible = false
     object.Color = Color3.new(1, 1, 1)
     object.Transparency = 1
-    object.Thickness = 1
+    
+    if drawing_type ~= "Text" then
+        object.Thickness = 1
+    end
     
     local constructor = PrimitiveConstructors[drawing_type]
     constructor(object)
