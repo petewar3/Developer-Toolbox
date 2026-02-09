@@ -55,15 +55,14 @@ local function NextZIndex()
 end
 
 local FontMap = {
-    Enum.Font.SourceSans, -- UI
-    Enum.Font.Code,       -- Monospace
-    Enum.Font.Plex,       -- Plex
-    Enum.Font.Gotham      -- System
+    UI = Enum.Font.SourceSans, -- UI
+    Monospace = Enum.Font.Code, -- Monospace
+    Plex = Enum.Font.Gotham, -- Plex
+    System = Enum.Font.Gotham -- System 
 }
 
-local function ResolveFont(index)
-    index = math.floor(math.clamp(index, 0, 3))
-    return FontMap[index + 1]
+local function ResolveFont(name)
+    return FontMap[name] or Enum.Font.SourceSans
 end
 
 local RenderContainer = {
