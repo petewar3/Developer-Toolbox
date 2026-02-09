@@ -104,6 +104,8 @@ function Renderers.Line:Create(obj)
         Frame = frame,
         _cache = {}
     }
+    
+    print(obj._backend.Frame)
 
     self:Update(obj, "From", obj.From)
     self:Update(obj, "To", obj.To)
