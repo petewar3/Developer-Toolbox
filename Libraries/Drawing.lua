@@ -411,6 +411,7 @@ function BaseObject:Remove()
     end
 
     self._removed = true
+    self._onPropertyChanged = nil
 
     local renderer = Renderers[self._type]
     if renderer then
