@@ -558,6 +558,9 @@ function Drawing.new(drawing_type)
     assert(DrawingPrimitives[drawing_type], string.format("bad argument #1 to 'Drawing.new' (invalid drawing type: %s)", drawing_type))
 
     local object = CreateObject(drawing_type)
+    
+    local old_onPropertyChanged = object._onPropertyChanged
+    object._onPropertyChanged = nil
 
     object.Visible = false
     object.Color = Color3.new(1, 1, 1)
@@ -576,6 +579,7 @@ function Drawing.new(drawing_type)
     end
     
     RenderContainer.Objects[object] = true
+    object._onPropertyChanged = old_onPropertyChanged
 
     return object
 end
