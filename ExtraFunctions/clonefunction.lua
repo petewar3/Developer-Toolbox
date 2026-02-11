@@ -1,5 +1,5 @@
 return function(func)
-    assert(typeof(func) == "function", string.format("bad argument to #3 'clonefunction' (function expected, got %s)", typeof(func)))
+    assert(typeof(func) == "function", string.format("bad argument to #1 'clonefunction' (function expected, got %s)", typeof(func)))
     
 	local func_env = xpcall(setfenv, function(err, traceback)
 		return err, traceback
