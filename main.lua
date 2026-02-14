@@ -558,7 +558,7 @@ local function RejoinServer()
         if game.PrivateServerId ~= "" then
             return SendNotification("Failed to Rejoin Server. Cannot rejoin a private server.")
         else
-            teleport_service:TeleportToPlaceInstance(game.placeId, game.jobId)
+            teleport_service:TeleportToPlaceInstance(game.PlaceId, game.JobId)
         end
     end)
 end
