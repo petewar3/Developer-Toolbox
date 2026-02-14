@@ -1,3 +1,3 @@
 version: 1.15.1
-releaseDate: 2026-1-23
-notes: improved asset loading to be more modular
+release date: 2026-1-23
+notes: small change to rejoin server, pascal case property access instead of camel case property access for place id & job id
