@@ -3,7 +3,7 @@ local metamethods = {
         return self["_"]
     end,
     __newindex = function(self)
-        self["_"] = 
+        self["_"] = "_"
     end,
     __namecall = function(self)
         self:_()
