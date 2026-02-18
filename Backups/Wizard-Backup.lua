@@ -6,7 +6,7 @@ local gethui = gethui or function()
     return game:GetService("CoreGui")
 end
 
-print("Loaded!")
+print("Loaded #2!")
 
 local user_input_service = cloneref(game:GetService("UserInputService"))
 local tween_service = cloneref(game:GetService("TweenService"))
@@ -1145,6 +1145,7 @@ function library_objects:NewWindow(window_title)
         end
         return section_objects
     end
+    return window_objects
 end
 
 return library_objects
