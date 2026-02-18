@@ -241,14 +241,14 @@ function library_objects.NewWindow(window_config, window_title)
     
     local window_objects = {}
 
-    function window_objects:NewSection(section_config, section_title)
+    function window_objects.NewSection(section_config, section_title)
         local section_frame = Instance.new("Frame")
         local section_info = Instance.new("Frame")
         local section_toggle = Instance.new("TextButton")
         local section_title_label = Instance.new("TextLabel")
         local layout = Instance.new("UIListLayout")
         
-        local section_name_clean = clean_string(section_title)
+        local section_name_clean = section_title
         local section_toggle_text = "v"
         local section_height = 30
         local is_section_open = false
@@ -1142,7 +1142,6 @@ function library_objects.NewWindow(window_config, window_title)
         end
         return section_objects
     end
-    return window_objects
 end
 
 return library_objects
