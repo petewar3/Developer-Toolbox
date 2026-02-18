@@ -34,7 +34,7 @@ main_container.BackgroundTransparency = 1
 main_container.Size = UDim2.new(0, 100, 0, 100)
 
 user_input_service.InputBegan:Connect(function(input_object)
-    if input_object.KeyCode == Enum.KeyCode.RightControl then
+    if input_object.KeyCode == Enum.KeyCode.T then
         screen_gui.Enabled = not screen_gui.Enabled
     end
 end)
