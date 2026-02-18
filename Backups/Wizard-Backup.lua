@@ -102,7 +102,7 @@ end)()
 
 local library_objects = {}
 
-function library_objects.NewWindow(window_config, window_title)
+function library_objects.NewWindow(window_title)
     local window_frame = Instance.new("ImageLabel")
     local topbar_frame = Instance.new("Frame")
     local toggle_button = Instance.new("TextButton")
