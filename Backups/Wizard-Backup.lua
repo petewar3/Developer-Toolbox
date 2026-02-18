@@ -6,7 +6,7 @@ local gethui = gethui or function()
     return game:GetService("CoreGui")
 end
 
-print("Loaded #2!")
+print("Loaded!")
 
 local user_input_service = cloneref(game:GetService("UserInputService"))
 local tween_service = cloneref(game:GetService("TweenService"))
@@ -244,8 +244,7 @@ function library_objects:NewWindow(window_title)
     make_draggable(window_frame)
     
     local window_objects = {}
-
-        function window_objects:NewSection(section_title)
+    function window_objects:NewSection(section_title)
         local section_frame = Instance.new("Frame")
         local section_info = Instance.new("Frame")
         local section_toggle = Instance.new("TextButton")
@@ -253,7 +252,6 @@ function library_objects:NewWindow(window_title)
         local layout = Instance.new("UIListLayout")
 
         local is_section_open = false
-        local SECTION_DELTA = 30
 
         section_frame.Name = clean_string(section_title) .. "Section"
         section_frame.Parent = body_frame
@@ -261,6 +259,8 @@ function library_objects:NewWindow(window_title)
         section_frame.BorderSizePixel = 0
         section_frame.ClipsDescendants = true
         section_frame.Size = UDim2.new(0, 170, 0, 30)
+        
+        expand_window(30)
 
         section_info.Parent = section_frame
         section_info.BackgroundTransparency = 1
@@ -294,11 +294,11 @@ function library_objects:NewWindow(window_title)
             if is_section_open then
                 section_toggle.Text = "-"
                 section_toggle.TextSize = 20
-                expand_window(SECTION_DELTA)
+                expand_window(30)
             else
                 section_toggle.Text = "v"
                 section_toggle.TextSize = 14
-                collapse_window(SECTION_DELTA)
+                collapse_window(30)
             end
         end)
         
@@ -391,6 +391,9 @@ function library_objects:NewWindow(window_title)
             slider_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             slider_frame.BorderSizePixel = 0
             slider_frame.Size = UDim2.new(0, 170, 0, 30)
+            
+            self.section_frame.Size = UDim2.new(0, 170, 0, self.section_frame.Size.Y.Offset + 30)
+            expand_window(30)
             
             slider_title.Name = "SliderTitle"
             slider_title.Parent = slider_frame
@@ -521,6 +524,9 @@ function library_objects:NewWindow(window_title)
             color_picker_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             color_picker_frame.BorderSizePixel = 0
             color_picker_frame.Size = UDim2.new(0, 170, 0, 30)
+            
+            self.section_frame.Size = UDim2.new(0, 170, 0, self.section_frame.Size.Y.Offset + 30)
+            expand_window(30)
             
             color_picker_title.Name = "ColorPickerTitle"
             color_picker_title.Parent = color_picker_frame
@@ -857,6 +863,9 @@ function library_objects:NewWindow(window_title)
             button_frame.BorderSizePixel = 0
             button_frame.Size = UDim2.new(0, 170, 0, 30)
             
+            self.section_frame.Size = UDim2.new(0, 170, 0, self.section_frame.Size.Y.Offset + 30)
+            expand_window(30)
+            
             button.Name = "Button"
             button.Parent = button_frame
             button.BackgroundColor3 = Color3.new(0.254902, 0.254902, 0.254902)
@@ -903,6 +912,9 @@ function library_objects:NewWindow(window_title)
             textbox_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             textbox_frame.BorderSizePixel = 0
             textbox_frame.Size = UDim2.new(0, 170, 0, 30)
+            
+            self.section_frame.Size = UDim2.new(0, 170, 0, self.section_frame.Size.Y.Offset + 30)
+            expand_window(30)
             
             textbox.Parent = textbox_frame
             textbox.BackgroundColor3 = Color3.new(0.254902, 0.254902, 0.254902)
@@ -961,6 +973,9 @@ function library_objects:NewWindow(window_title)
             dropdown_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             dropdown_frame.BorderSizePixel = 0
             dropdown_frame.Size = UDim2.new(0, 170, 0, 30)
+            
+            self.section_frame.Size = UDim2.new(0, 170, 0, self.section_frame.Size.Y.Offset + 30)
+            expand_window(30)
             
             dropdown_title.Name = "DropdownTitle"
             dropdown_title.Parent = dropdown_frame
