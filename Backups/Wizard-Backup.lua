@@ -99,7 +99,7 @@ end)()
 
 local library_objects = {}
 
-function library_objects.new_window(window_config, window_title)
+function library_objects.NewWindow(window_config, window_title)
     local window_frame = Instance.new("ImageLabel")
     local topbar_frame = Instance.new("Frame")
     local toggle_button = Instance.new("TextButton")
@@ -241,7 +241,7 @@ function library_objects.new_window(window_config, window_title)
     
     local window_objects = {}
 
-    function window_objects.new_section(section_config, section_title)
+    function window_objects.NewSection(section_config, section_title)
         local section_frame = Instance.new("Frame")
         local section_info = Instance.new("Frame")
         local section_toggle = Instance.new("TextButton")
@@ -363,7 +363,7 @@ function library_objects.new_window(window_config, window_title)
         local section_objects = {}
         return section_objects
     end
-    function section_objects.create_toggle(callback, toggle_title, default_state)
+    function section_objects.CreateToggle(callback, toggle_title, default_state)
         local toggle_holder = Instance.new("Frame")
         local toggle_title_label = Instance.new("TextLabel")
         local toggle_background = Instance.new("ImageLabel")
@@ -427,7 +427,7 @@ function library_objects.new_window(window_config, window_title)
             end
         end)
     end
-    function create_slider(parent, title, min_value, max_value, default_value, callback, flag, ...)
+    function section_objects.CreateSlider(parent, title, min_value, max_value, default_value, callback, flag, ...)
         local slider_frame = Instance.new("Frame")
         local slider_title = Instance.new("TextLabel")
         local value_holder = Instance.new("ImageLabel")
@@ -541,7 +541,7 @@ function library_objects.new_window(window_config, window_title)
             end
         end)
     end
-    function create_color_picker(parent, default_color, callback, flag, ...)
+    function section_objects.CreateColorPicker(parent, default_color, callback, flag, ...)
         local color_picker_frame = Instance.new("Frame")
         local rainbow_toggle_frame = Instance.new("Frame")
         local rainbow_title = Instance.new("TextLabel")
@@ -898,7 +898,7 @@ function library_objects.new_window(window_config, window_title)
             end
         end)
     end
-    function create_button(parent, text, callback, ...)
+    function section_objects.CreateButton(parent, text, callback, ...)
         local button_frame = Instance.new("Frame")
         local button = Instance.new("TextButton")
         local button_round = Instance.new("ImageLabel")
@@ -945,7 +945,7 @@ function library_objects.new_window(window_config, window_title)
             end
         end)
     end
-    function create_textbox(parent, placeholder_text, callback, ...)
+    function section_objects.CreateTextbox(parent, placeholder_text, callback, ...)
         local textbox_frame = Instance.new("Frame")
         local textbox = Instance.new("TextBox")
         local textbox_round = Instance.new("ImageLabel")
@@ -991,7 +991,7 @@ function library_objects.new_window(window_config, window_title)
             end
         end)
     end
-    function create_dropdown(parent, title, options, default_index, callback, ...)
+    function section_objects.CreateDropdown(parent, title, options, default_index, callback, ...)
         local dropdown_frame = Instance.new("Frame")
         local dropdown_title = Instance.new("TextLabel")
         local dropdown_round = Instance.new("ImageLabel")
