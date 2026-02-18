@@ -27,8 +27,12 @@ end
 --// Executing Check
 local global_env = getgenv() or shared
 
-local cloneref = cloneref and clonefunction(cloneref) or function(...)
+local cloneref = cloneref or function(...)
     return ...
+end
+
+local gethui = gethui or function(...)
+    return game:GetService("CoreGui")
 end
 
 if global_env.Toolbox and global_env.Toolbox.Executing then
@@ -266,7 +270,6 @@ local firesignal = firesignal and clonefunction(firesignal)
 local getnamecallmethod = getnamecallmethod and clonefunction(getnamecallmethod)
 
 local player = cloneref(game:GetService("Players")).LocalPlayer
-local core_gui = cloneref(game:GetService("CoreGui"))
 local starter_gui = cloneref(game:GetService("StarterGui"))
 local teleport_service = cloneref(game:GetService("TeleportService"))
 local http_service = cloneref(game:GetService("HttpService"))
@@ -290,7 +293,7 @@ for _, func in ipairs(required_functions) do
 end
 
 --// UI Cleanup
-local wizard_library = core_gui:FindFirstChild("WizardLibrary")
+local wizard_library = gethui():FindFirstChild("WizardLibrary")
 if wizard_library then
     wizard_library:Destroy()
 end
@@ -1087,13 +1090,7 @@ Other:CreateToggle("Notification Sounds", function(value)
     else
         SendNotification("Notification Sounds Disabled.")
     end
-end)
-
---// Notification Sounds Toggle Setup
-local image_toggle = cloneref(core_gui.WizardLibrary.Container["DevToolbox|PetewareWindow"].Body.OtherSection.NotificationSoundsToggleHolder.ToggleBackground.ToggleButton)
-if image_toggle then
-    image_toggle.ImageTransparency = 0
-end
+end, true)
 
 Other:CreateButton("FPS Booster", function()
     PlayNotificationSound()
@@ -1143,7 +1140,7 @@ Other:CreateButton("Exit Toolbox", function()
         Callback = function(value)
             if value == "Yes" then
                 pcall(function() 
-                    core_gui:FindFirstChild("WizardLibrary"):Destroy()
+                    gethui():FindFirstChild("WizardLibrary"):Destroy()
                 end)
             elseif value == "No" then
                 SendNotification("Exit cancelled.")
@@ -1153,13 +1150,13 @@ Other:CreateButton("Exit Toolbox", function()
 end)
 
 --// UI Display Order
-local toolbox_ui = core_gui:FindFirstChild("WizardLibrary")
+local toolbox_ui = gethui():FindFirstChild("WizardLibrary")
 if toolbox_ui then
     toolbox_ui.DisplayOrder = 10000
 end
 
 --// Events
-local ui_handler_conn; ui_handler_conn = core_gui.ChildRemoved:Connect(function(child)
+local ui_handler_conn; ui_handler_conn = gethui().ChildRemoved:Connect(function(child)
     if child == toolbox_ui then
         ui_handler_conn:Disconnect()
         ui_handler_conn = nil
