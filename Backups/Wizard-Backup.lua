@@ -364,7 +364,7 @@ function library_objects:NewWindow(window_title)
         end)
         
         local section_objects = {}
-        function section_objects:CreateToggle(callback, toggle_title, default_state)
+        function section_objects:CreateToggle(toggle_title, callback, default_state)
             local toggle_holder = Instance.new("Frame")
             local toggle_title_label = Instance.new("TextLabel")
             local toggle_background = Instance.new("ImageLabel")
@@ -412,7 +412,7 @@ function library_objects:NewWindow(window_title)
             toggle_button.ImageColor3 = Color3.new(1, 0.341176, 0.341176)
             toggle_button.ImageTransparency = 1
                 
-            toggle_button.MouseButton1Down:Connect(function()
+            local callback_conn = toggle_button.MouseButton1Down:Connect(function()
                 toggle_state = not toggle_state
                 if toggle_state then
                     tween_service:Create(toggle_button, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -427,6 +427,10 @@ function library_objects:NewWindow(window_title)
                     callback(toggle_state)
                 end
             end)
+            
+            if default_state then
+                callback_conn:Fire()
+            end
         end
         function section_objects:CreateSlider(title, min_value, max_value, default_value, callback, flag, ...)
             local slider_frame = Instance.new("Frame")
