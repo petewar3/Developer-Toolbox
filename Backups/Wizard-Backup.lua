@@ -205,10 +205,6 @@ function library_objects:NewWindow(window_title)
     title_label.Size = UDim2.new(0, 170, 0, 30)
     title_label.ZIndex = 2
     title_label.Font = Enum.Font.SourceSansBold
-    print(#window_name_clean)
-    for i, v in pairs(window_name_clean) do
-        print(i, v)
-    end
     title_label.Text = window_name_clean
     title_label.TextColor3 = Color3.new(1, 1, 1)
     title_label.TextSize = 17
