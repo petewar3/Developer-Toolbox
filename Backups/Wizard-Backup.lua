@@ -130,7 +130,7 @@ function library_objects:NewWindow(window_title)
         }):Play()
     end
     
-    window_frame.Name = window_name_clean .. "Window"
+    window_frame.Name = window_name_clean
     window_frame.Parent = main_container
     window_frame.BackgroundColor3 = Color3.new(0.0980392, 0.0980392, 0.0980392)
     window_frame.BackgroundTransparency = 1
@@ -205,7 +205,7 @@ function library_objects:NewWindow(window_title)
     title_label.Size = UDim2.new(0, 170, 0, 30)
     title_label.ZIndex = 2
     title_label.Font = Enum.Font.SourceSansBold
-    title_label.Text = window_title
+    title_label.Text = window_name_clean
     title_label.TextColor3 = Color3.new(1, 1, 1)
     title_label.TextSize = 17
     
