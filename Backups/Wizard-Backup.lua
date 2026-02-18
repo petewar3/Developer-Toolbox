@@ -428,7 +428,7 @@ function library_objects:NewWindow(window_title)
                 end
             end)
         end
-        function section_objects:CreateSlider(parent, title, min_value, max_value, default_value, callback, flag, ...)
+        function section_objects:CreateSlider(title, min_value, max_value, default_value, callback, flag, ...)
             local slider_frame = Instance.new("Frame")
             local slider_title = Instance.new("TextLabel")
             local value_holder = Instance.new("ImageLabel")
@@ -440,7 +440,7 @@ function library_objects:NewWindow(window_title)
             local current_value = default_value
             
             slider_frame.Name = slider_name .. "SliderHolder"
-            slider_frame.Parent = parent
+            slider_frame.Parent = self.section_frame
             slider_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             slider_frame.BorderSizePixel = 0
             slider_frame.Size = UDim2.new(0, 170, 0, 30)
@@ -542,7 +542,7 @@ function library_objects:NewWindow(window_title)
                 end
             end)
         end
-        function section_objects:CreateColorPicker(parent, default_color, callback, flag, ...)
+        function section_objects:CreateColorPicker(default_color, callback, flag, ...)
             local color_picker_frame = Instance.new("Frame")
             local rainbow_toggle_frame = Instance.new("Frame")
             local rainbow_title = Instance.new("TextLabel")
@@ -570,7 +570,7 @@ function library_objects:NewWindow(window_title)
             local current_hsv = { H = 1, S = 1, V = 1 }
             
             color_picker_frame.Name = clean_string("ColorPicker") .. "ColorPickerHolder"
-            color_picker_frame.Parent = parent
+            color_picker_frame.Parent = self.section_frame
             color_picker_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             color_picker_frame.BorderSizePixel = 0
             color_picker_frame.Size = UDim2.new(0, 170, 0, 30)
@@ -899,13 +899,13 @@ function library_objects:NewWindow(window_title)
                 end
             end)
         end
-        function section_objects:CreateButton(parent, text, callback, ...)
+        function section_objects:CreateButton(text, callback)
             local button_frame = Instance.new("Frame")
             local button = Instance.new("TextButton")
             local button_round = Instance.new("ImageLabel")
             
             button_frame.Name = clean_string(text) .. "ButtonHolder"
-            button_frame.Parent = parent
+            button_frame.Parent = self.section_frame
             button_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             button_frame.BorderSizePixel = 0
             button_frame.Size = UDim2.new(0, 170, 0, 30)
@@ -946,13 +946,13 @@ function library_objects:NewWindow(window_title)
                 end
             end)
         end
-        function section_objects:CreateTextbox(parent, placeholder_text, callback, ...)
+        function section_objects:CreateTextbox(placeholder_text, callback, ...)
             local textbox_frame = Instance.new("Frame")
             local textbox = Instance.new("TextBox")
             local textbox_round = Instance.new("ImageLabel")
             
             textbox_frame.Name = clean_string(placeholder_text) .. "TextBoxHolder"
-            textbox_frame.Parent = parent
+            textbox_frame.Parent = self.section_frame
             textbox_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             textbox_frame.BorderSizePixel = 0
             textbox_frame.Size = UDim2.new(0, 170, 0, 30)
@@ -992,7 +992,7 @@ function library_objects:NewWindow(window_title)
                 end
             end)
         end
-        function section_objects:CreateDropdown(parent, title, options, default_index, callback, ...)
+        function section_objects:CreateDropdown(title, options, default_index, callback, ...)
             local dropdown_frame = Instance.new("Frame")
             local dropdown_title = Instance.new("TextLabel")
             local dropdown_round = Instance.new("ImageLabel")
@@ -1010,7 +1010,7 @@ function library_objects:NewWindow(window_title)
             local needs_scroll = false
             
             dropdown_frame.Name = dropdown_name .. "DropdownHolder"
-            dropdown_frame.Parent = parent
+            dropdown_frame.Parent = self.section_frame
             dropdown_frame.BackgroundColor3 = Color3.new(0.137255, 0.137255, 0.137255)
             dropdown_frame.BorderSizePixel = 0
             dropdown_frame.Size = UDim2.new(0, 170, 0, 30)
