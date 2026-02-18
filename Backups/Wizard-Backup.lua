@@ -6,7 +6,7 @@ local gethui = gethui or function()
     return game:GetService("CoreGui")
 end
 
-print("Loaded!")
+print("Loaded #2!")
 
 local user_input_service = cloneref(game:GetService("UserInputService"))
 local tween_service = cloneref(game:GetService("TweenService"))
@@ -245,126 +245,66 @@ function library_objects:NewWindow(window_title)
     
     local window_objects = {}
 
-    function window_objects:NewSection(section_title)
+        function window_objects:NewSection(section_title)
         local section_frame = Instance.new("Frame")
         local section_info = Instance.new("Frame")
         local section_toggle = Instance.new("TextButton")
         local section_title_label = Instance.new("TextLabel")
         local layout = Instance.new("UIListLayout")
-        
-        local section_name_clean = section_title
-        local section_toggle_text = "v"
-        local section_height = 30
+
         local is_section_open = false
-        
-        local function expand_section(height_delta)
-            section_height = section_height + height_delta
-            tween_service:Create(body_frame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 170, 0, section_height),
-            }):Play()
-        end
-        
-        local function collapse_section(height_delta)
-            section_height = section_height - height_delta
-            tween_service:Create(body_frame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, 170, 0, section_height),
-            }):Play()
-        end
-        
-        section_frame.Name = section_name_clean .. "Section"
+        local SECTION_DELTA = 30
+
+        section_frame.Name = clean_string(section_title) .. "Section"
         section_frame.Parent = body_frame
         section_frame.BackgroundColor3 = Color3.new(0.176471, 0.176471, 0.176471)
         section_frame.BorderSizePixel = 0
         section_frame.ClipsDescendants = true
-        section_frame.Size = UDim2.new(0, 170, 0, section_height)
-        
-        expand_section(30)
-        
-        section_info.Name = "SectionInfo"
+        section_frame.Size = UDim2.new(0, 170, 0, 30)
+
         section_info.Parent = section_frame
-        section_info.BackgroundColor3 = Color3.new(1, 1, 1)
         section_info.BackgroundTransparency = 1
         section_info.Size = UDim2.new(0, 170, 0, 30)
-        
-        section_toggle.Name = "SectionToggle"
+
         section_toggle.Parent = section_info
-        section_toggle.BackgroundColor3 = Color3.new(1, 1, 1)
         section_toggle.BackgroundTransparency = 1
         section_toggle.Position = UDim2.new(0.822450161, 0, 0, 0)
         section_toggle.Size = UDim2.new(0, 30, 0, 30)
-        section_toggle.ZIndex = 2
         section_toggle.Font = Enum.Font.SourceSansSemibold
-        section_toggle.Text = section_toggle_text
+        section_toggle.Text = "v"
         section_toggle.TextColor3 = Color3.new(1, 1, 1)
         section_toggle.TextSize = 14
-        section_toggle.TextWrapped = true
-        
-        section_title_label.Name = "SectionTitle"
+
         section_title_label.Parent = section_info
-        section_title_label.BackgroundColor3 = Color3.new(1, 1, 1)
         section_title_label.BackgroundTransparency = 1
-        section_title_label.BorderSizePixel = 0
-        section_title_label.Position = UDim2.new(0.052941177, 0, 0, 0)
+        section_title_label.Position = UDim2.new(0.0529, 0, 0, 0)
         section_title_label.Size = UDim2.new(0, 125, 0, 30)
         section_title_label.Font = Enum.Font.SourceSansBold
         section_title_label.Text = section_title
         section_title_label.TextColor3 = Color3.new(1, 1, 1)
         section_title_label.TextSize = 17
         section_title_label.TextXAlignment = Enum.TextXAlignment.Left
-        
-        layout.Name = "Layout"
+
         layout.Parent = section_frame
         layout.SortOrder = Enum.SortOrder.LayoutOrder
-        
+
         section_toggle.MouseButton1Down:Connect(function()
+            is_section_open = not is_section_open
+
             if is_section_open then
-                collapse_section(30)
-                section_toggle_text = ""
-                tween_service:Create(section_toggle, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    BackgroundTransparency = 1,
-                }):Play()
-            else
-                expand_section(30)
-                section_toggle_text = "v"
-                tween_service:Create(section_toggle, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    BackgroundTransparency = 0,
-                }):Play()
-            end
-        end)
-        
-        section_toggle.MouseButton1Down:Connect(function()
-            if is_section_open then
-                is_section_open = false
-                section_toggle_text = "v"
-                tween_service:Create(section_toggle, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    TextTransparency = 1,
-                }):Play()
-                section_toggle.Text = section_toggle_text
-                section_toggle.TextSize = 14
-                section_toggle.Visible = false
-                repeat wait() until section_toggle.TextTransparency == 1
-                section_toggle.Visible = true
-                tween_service:Create(section_toggle, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    TextTransparency = 0,
-                }):Play()
-            else
-                is_section_open = true
-                section_toggle_text = "-"
-                tween_service:Create(section_toggle, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    TextTransparency = 1,
-                }):Play()
-                section_toggle.Text = section_toggle_text
+                section_toggle.Text = "-"
                 section_toggle.TextSize = 20
-                section_toggle.Visible = false
-                repeat wait() until section_toggle.TextTransparency == 1
-                section_toggle.Visible = true
-                tween_service:Create(section_toggle, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    TextTransparency = 0,
-                }):Play()
+                expand_window(SECTION_DELTA)
+            else
+                section_toggle.Text = "v"
+                section_toggle.TextSize = 14
+                collapse_window(SECTION_DELTA)
             end
         end)
         
         local section_objects = {}
+        section_objects.section_frame = section_frame
+        
         function section_objects:CreateToggle(toggle_title, callback, default_state)
             local toggle_holder = Instance.new("Frame")
             local toggle_title_label = Instance.new("TextLabel")
