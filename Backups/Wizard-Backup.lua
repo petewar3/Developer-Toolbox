@@ -80,6 +80,9 @@ local function make_draggable(draggable_frame)
 end
 
 local function clean_string(input_string)
+    if type(input_string) ~= "string" then
+        input_string = tostring(input_string or "")
+    end
     return input_string:gsub(" ", "")
 end
 
