@@ -135,7 +135,7 @@ function library_objects:NewWindow(window_title)
     window_frame.Parent = main_container
     window_frame.BackgroundColor3 = Color3.new(0.0980392, 0.0980392, 0.0980392)
     window_frame.BackgroundTransparency = 1
-    window_frame.Position = UDim2.new(0, 0, 0, -265)
+    window_frame.Position = UDim2.new(0, 100, 0, 100)
     window_frame.Size = UDim2.new(0, 170, 0, 30)
     window_frame.ZIndex = 2
     window_frame.Image = "rbxassetid://3570695787"
