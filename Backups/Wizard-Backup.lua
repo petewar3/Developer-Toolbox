@@ -411,8 +411,8 @@ function library_objects:NewWindow(window_title)
             toggle_button.Image = "rbxassetid://3570695787"
             toggle_button.ImageColor3 = Color3.new(1, 0.341176, 0.341176)
             toggle_button.ImageTransparency = 1
-                
-            local callback_conn = toggle_button.MouseButton1Down:Connect(function()
+            
+            local function callback_toggle()
                 toggle_state = not toggle_state
                 if toggle_state then
                     tween_service:Create(toggle_button, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
@@ -426,10 +426,12 @@ function library_objects:NewWindow(window_title)
                 if callback then
                     callback(toggle_state)
                 end
-            end)
+            end
+                
+            local callback_conn = toggle_button.MouseButton1Down:Connect(callback_toggle)
             
             if default_state then
-                callback_conn:Fire()
+                callback_toggle()
             end
         end
         function section_objects:CreateSlider(title, min_value, max_value, default_value, callback, flag, ...)
