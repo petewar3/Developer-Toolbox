@@ -244,7 +244,7 @@ function library_objects:NewWindow(window_title)
     
     local window_objects = {}
 
-    function window_objects:NewSection(section_config, section_title)
+    function window_objects:NewSection(section_title)
         local section_frame = Instance.new("Frame")
         local section_info = Instance.new("Frame")
         local section_toggle = Instance.new("TextButton")
