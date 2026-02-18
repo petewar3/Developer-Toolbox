@@ -6,7 +6,7 @@ local gethui = gethui or function()
     return game:GetService("CoreGui")
 end
 
-print("Loaded #2!")
+print("Loaded!")
 
 local user_input_service = cloneref(game:GetService("UserInputService"))
 local tween_service = cloneref(game:GetService("TweenService"))
@@ -22,6 +22,8 @@ if gethui():FindFirstChild("WizardLibrary") then
 end
 
 local screen_gui = Instance.new("ScreenGui")
+screen_gui.Enabled = true
+
 local main_container = Instance.new("Frame")
 
 screen_gui.Name = "WizardLibrary"
@@ -32,6 +34,7 @@ main_container.Parent = screen_gui
 main_container.BackgroundColor3 = Color3.new(1, 1, 1)
 main_container.BackgroundTransparency = 1
 main_container.Size = UDim2.new(0, 100, 0, 100)
+main_container.Visible = true
 
 user_input_service.InputBegan:Connect(function(input_object)
     if input_object.KeyCode == Enum.KeyCode.T then
