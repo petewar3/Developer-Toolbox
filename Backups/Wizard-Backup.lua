@@ -23,12 +23,10 @@ end
 
 local screen_gui = Instance.new("ScreenGui")
 screen_gui.Enabled = true
-
-local main_container = Instance.new("Frame")
-
 screen_gui.Name = "WizardLibrary"
 screen_gui.Parent = gethui()
 
+local main_container = Instance.new("Frame")
 main_container.Name = "Container"
 main_container.Parent = screen_gui
 main_container.BackgroundColor3 = Color3.new(1, 1, 1)
