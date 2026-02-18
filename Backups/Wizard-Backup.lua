@@ -1,6 +1,7 @@
 -- filename: discord.gg/25ms
 -- version: lua51
 -- line: [0, 0] id: 0
+print("INsajnenfjeaa")
 local r0_0 = game:GetService("UserInputService")
 local r1_0 = game:GetService("TweenService")
 local r2_0 = game:GetService("RunService")
