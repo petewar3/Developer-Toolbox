@@ -12,13 +12,10 @@ if global_env.ConsoleLogs == nil then
     global_env.ConsoleLogs = false -- Set to true if you want console logs (mainly for debugging)
 end
 
-
-
 if not game:IsLoaded() then
-    repeat
-        task.wait()
-    until game:IsLoaded()
+    game.Loaded:Wait()
 end
+
 if not global_env.FPS_Booster_Settings then
     global_env.FPS_Booster_Settings = {
         Players = {
