@@ -300,62 +300,6 @@ end
 
 task.wait(1)
 
---// Detection Handler
-local detected = false -- change this to true if you want the toolbox to be detected by in-game anti-cheat. useful when testing anti-cheats
-
-local function SendNotification() end
-local function SendInteractiveNotification() end
-
-local function HandleDetections(boolean)
-    local hook_required_functions = {
-        "hookmetamethod",
-        "checkcaller",
-        "cloneref",
-        "getnamecallmethod"
-    }
-    
-    for _, func in ipairs(hook_required_functions) do
-        if not func then
-            Notify("Incompatible Exploit. Your exploit does not support in-game anti-cheat detection handling (missing " .. tostring(v) .. ")")
-            SendInteractiveNotification({
-                Text = "Are you sure you want to proceed with loading the developers toolbox? You may be detected by in-game anti-cheats.",
-                Button1 = "Yes",
-                Button2 = "No",
-                Callback = function(value)
-                    return not value
-                end
-            }, true)
-        end
-    end
-    
-    if boolean then
-        SendInteractiveNotification({
-            Text = "Are you sure you want to proceed with loading the developers toolbox with UI detection on? You may be detected and punished by in-game anti-cheats.",
-            Button1 = "Yes",
-            Button2 = "No",
-            Callback = function(value)
-                return not value
-            end
-        }, true)
-    end
-    
-    local content_provider = cloneref(game:GetService("ContentProvider"))
-    
-    local old; old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
-        if not checkcaller() then
-            local method = getnamecallmethod()
-        
-            if self == content_provider and method == "GetAssetFetchStatus" then
-                return Enum.AssetFetchStatus.None
-            end
-        end
-        
-        return old(self, ...)
-    end))
-    
-    return false
-end
-
 --// Data Handler
 if not isfolder(main_folder) then
     makefolder(main_folder)
@@ -467,11 +411,6 @@ function SendInteractiveNotification(options, yield)
         local response = response_event.Event:Wait()
         return response
     end
-end
-
-local cancel_toolbox_loading = HandleDetections(detected)
-if cancel_toolbox_loading then
-    return Notify("Toolbox loading cancelled.")
 end
 
 local optional_functions = {
